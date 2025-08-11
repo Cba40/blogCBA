@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBA Blog - Noticias Tecnológicas</title>
+    <link rel="icon" href="/imagenes/logo.webp">
+    <link rel="stylesheet" href="/estilos/style.css">
+    <link rel="stylesheet" href="/estilos/header.css">
+    <link rel="stylesheet" href="/estilos/footer.css">
+</head>
+<body>
+    <a href="https://wa.me/5493525623637" class="btn-wsp" target="_blank" rel="noopener noreferrer" aria-label="Chatear por WhatsApp">
+        <img src="/imagenes/icons/whatsapp.png" alt="WhatsApp">
+    </a>
+
+    <!-- Header -->
+    <div id="header-container"></div>
+
+    <!-- Sección Blog -->
+    <section id="blog" class="main-container-blog">
+        <!-- Top Ad Banner -->
+        <div class="ad-banner">Espacio para Publicidad Banner Principal</div>
+        
+        <h1>Noticias Tecnológicas</h1>
+        <div class="blog-grid">
+            <!-- Artículo Destacado -->
+            <article class="featured-article">
+                <img src="/imagenes/blog/featured.webp" alt="Avance en IA">
+                <div class="article-content">
+                    <h2>Avance en IA: Nuevos Modelos 2025</h2>
+                    <p class="meta">Por Walter Camino | 11 Ago 2025</p>
+                    <p>Resumen de los últimos desarrollos en inteligencia artificial...</p>
+                    <a href="articulo1.html" class="read-more">Leer Más</a>
+                </div>
+            </article>
+
+            <!-- Artículos Recientes -->
+            <article class="blog-article">
+                <img src="/imagenes/blog/gadget.webp" alt="Nuevo Gadget">
+                <h3>Nuevo Smartphone Revolucionario</h3>
+                <p class="meta">Por Nicolás Figueroa | 10 Ago 2025</p>
+                <p>Detalles sobre el lanzamiento...</p>
+                <a href="articulo2.html" class="read-more">Leer Más</a>
+            </article>
+            <article class="blog-article">
+                <img src="/imagenes/blog/iot.webp" alt="IoT">
+                <h3>Automatización IoT para PyMEs</h3>
+                <p class="meta">Por Cecilia Cogot | 9 Ago 2025</p>
+                <p>Beneficios y implementación...</p>
+                <a href="articulo3.html" class="read-more">Leer Más</a>
+            </article>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="blog-sidebar">
+            <div class="ad-sidebar">Publicidad Lateral 1</div>
+            <h3>Categorías</h3>
+            <ul>
+                <li><a href="#ia">IA</a></li>
+                <li><a href="#gadgets">Gadgets</a></li>
+                <li><a href="#iot">IoT</a></li>
+            </ul>
+            <div class="ad-sidebar">Publicidad Lateral 2</div>
+            <h3>Suscríbete</h3>
+            <form>
+                <input type="email" placeholder="Tu email">
+                <button type="submit">Suscribir</button>
+            </form>
+        </aside>
+    </section>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Cargar el header y el footer dinámicamente
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("/header.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("header-container").innerHTML = data;
+                });
+
+            fetch("/footer.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("footer-container").innerHTML = data;
+                });
+        });
+    </script>
+</body>
+</html>
