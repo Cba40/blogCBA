@@ -26,9 +26,9 @@ const Header = () => {
             {/* Imagen del logo con fondo teal y borde redondeado */}
             <div className="bg-teal-600 p-2 rounded-lg">
               <img
-                src="/imagenes/logo.webp" // 📌 Cambia esto por la ruta de tu logo
+                src="/imagenes/logo.webp" 
                 alt="Logo CBA Blog"
-                className="h-8 w-8 object-cover rounded" // Tamaño igual al ícono
+                className="h-8 w-8 object-cover rounded" 
               />
             </div>
             <div>
