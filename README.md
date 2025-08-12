@@ -2,7 +2,7 @@
 Creacion de un blog de noticias 
 
 primero
-mpm install
+npm install
 cuando ya tengan todos los paquetes instalados
 npm run dev
 
