@@ -12,8 +12,18 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="bg-gradient-to-r from-blue-100 to-teal-100 rounded-lg p-4">
             <p className="text-sm text-gray-700">
-              📢 <strong>Espacio Publicitario Premium</strong> - Tu empresa puede estar aquí. 
-              <span className="text-teal-600 font-medium ml-2">Contáctanos</span>
+              📢 <strong>Espacio Publicitario Premium</strong> - Tu empresa puede estar aquí.{' '}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href =
+                    'mailto:cba4.0cordoba@gmail.com?subject=Consulta de Publicidad&body=Hola,%0Ame%20interesa%20más%20información%20sobre%20los%20espacios%20publicitarios%20en%20CBA%20Blog.';
+                }}
+                className="text-teal-600 font-medium hover:underline cursor-pointer"
+              >
+                Contáctanos
+              </a>
             </p>
           </div>
         </div>
