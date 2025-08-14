@@ -5,25 +5,17 @@ const Sidebar = () => {
   return (
     <aside className="space-y-6">
       {/* Top Banner Ad */}
-     <div className="bg-gray-100 py-3 text-center rounded-lg">
-        <p className="text-sm text-gray-700 flex items-center justify-center gap-1">
-          📢 <strong>Espacio Publicitario Premium</strong> - Tu empresa puede estar aquí.
-        </p>
-        <div className="flex items-center justify-center space-x-2 mt-1">
-          <Mail className="h-4 w-4 text-teal-600" />
+      <div className="bg-gray-100 py-3 text-center rounded-lg">
+        <p className="text-sm text-gray-700">
+          📢 <strong>Espacio Publicitario Premium</strong> - Tu empresa puede estar aquí.{' '}
           <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              const mailto = 'mailto:cba4.0cordoba@gmail.com?subject=Consulta de Publicidad&body=Hola,%0Ame%20interesa%20más%20información%20sobre%20los%20espacios%20publicitarios%20en%20CBA%20Blog.';
-              window.location.href = mailto;
-            }}
-            className="text-teal-600 font-medium text-sm hover:underline cursor-pointer"
+            href="mailto:cba4.0cordoba@gmail.com?subject=Consulta de Publicidad&body=Hola,%0Ame%20interesa%20más%20información%20sobre%20los%20espacios%20publicitarios%20en%20CBA%20Blog."
+            className="text-teal-600 font-medium hover:underline"
           >
             Contáctanos
           </a>
-        </div>
-     </div>
+        </p>
+      </div>
 
       {/* Ad Space 1 - Top Premium */}
       <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 text-center border border-purple-100">
