@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // Asegúrate de tenerlo
 import { Clock, User, Calendar, Share2, BookmarkPlus } from 'lucide-react';
 import { Article } from '../types/Article';
 
@@ -9,18 +10,20 @@ interface ArticleCardProps {
 const ArticleCard = ({ article }: ArticleCardProps) => {
   return (
     <article className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:transform hover:scale-[1.02]">
-      <div className="relative">
-        <img
-          src={article.image}
-          alt={article.title}
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-3 left-3">
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium uppercase">
-            {article.category}
-          </span>
+      <Link to={`/article/${article.id}`}>
+        <div className="relative">
+          <img
+            src={article.image}
+            alt={article.title}
+            className="w-full h-48 object-cover"
+          />
+          <div className="absolute top-3 left-3">
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium uppercase">
+              {article.category}
+            </span>
+          </div>
         </div>
-      </div>
+      </Link>
       
       <div className="p-5">
         <div className="flex items-center space-x-3 text-xs text-gray-500 mb-3">
@@ -34,9 +37,11 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
           </div>
         </div>
         
-        <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight hover:text-teal-600 transition-colors cursor-pointer">
-          {article.title}
-        </h3>
+        <Link to={`/article/${article.id}`}>
+          <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight hover:text-teal-600 transition-colors cursor-pointer">
+            {article.title}
+          </h3>
+        </Link>
         
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
           <User className="w-4 h-4" />
@@ -48,9 +53,9 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
         </p>
         
         <div className="flex items-center justify-between">
-          <button className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium">
+          <Link to={`/article/${article.id}`} className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium">
             Leer Más
-          </button>
+          </Link>
           
           <div className="flex space-x-1">
             <button className="p-2 text-gray-400 hover:text-teal-600 hover:bg-gray-100 rounded-lg transition-colors">
