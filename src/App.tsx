@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BlogSection from './components/BlogSection';
 import ArticlePage from './components/ArticlePage';
+import ContactPage from './components/ContactPage';
+import SearchResultsPage from './components/SearchResultsPage';
 import Layout from './components/Layout';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -17,6 +19,8 @@ function App() {
           <Routes>
             <Route path="/" element={<BlogSection />} />
             <Route path="/article/:id" element={<ArticlePage />} />
+            <Route path="/contacto" element={<ContactPage />} />
+            <Route path="/buscar" element={<SearchResultsPage />} />
           </Routes>
         </Layout>
       </div>

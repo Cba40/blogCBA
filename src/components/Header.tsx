@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { Search, Menu, X, } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  // ✅ Tipo explícito para 'e'
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+     navigate(`/buscar?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -32,13 +42,12 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-           <div className="flex items-center space-x-3">
-            {/* Imagen del logo con fondo teal y borde redondeado */}
+          <div className="flex items-center space-x-3">
             <div className="bg-teal-600 p-2 rounded-lg">
               <img
-                src="/imagenes/logo.webp" 
+                src="/imagenes/logo.webp"
                 alt="Logo CBA Blog"
-                className="h-8 w-8 object-cover rounded" 
+                className="h-8 w-8 object-cover rounded"
               />
             </div>
             <div>
@@ -48,7 +57,7 @@ const Header = () => {
           </div>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <input
                 type="text"
@@ -59,17 +68,22 @@ const Header = () => {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-          </div>
+          </form>
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex space-x-8">
-            <a href="#inicio" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+            <a href="/" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
               Inicio
             </a>
-            <a href="#tecnologia" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
-              Tecnología
+            <a
+              href="https://cba4puntocero.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
+            >
+              Cba 4.0 Web
             </a>
-            <a href="#contacto" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+            <a href="/contacto" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
               Contacto
             </a>
           </nav>
@@ -88,7 +102,7 @@ const Header = () => {
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="space-y-4">
               {/* Mobile Search */}
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
                   placeholder="Buscar noticias..."
@@ -97,17 +111,22 @@ const Header = () => {
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
+              </form>
 
               {/* Mobile Navigation */}
               <nav className="flex flex-col space-y-2">
-                <a href="#inicio" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                <a href="/" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
                   Inicio
                 </a>
-                <a href="#tecnologia" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                  Tecnología
+                <a
+                  href="https://cba4puntocero.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cba 4.0 Web
                 </a>
-                <a href="#contacto" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                <a href="/contacto" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
                   Contacto
                 </a>
               </nav>

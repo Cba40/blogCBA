@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import FeaturedArticle from './FeaturedArticle';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
-import AdBanners from './AdBanners'; // ✅ Importamos el componente
+import AdBanners from './AdBanners';
 import { blogArticles, featuredArticle } from '../data/articles';
 
 const BlogSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('todos');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Leer el término de búsqueda de la URL
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearchQuery(q);
+  }, [searchParams]);
+
   const articlesPerPage = 6;
 
-  const filteredArticles = selectedCategory === 'todos'
-    ? blogArticles
-    : blogArticles.filter(article => article.category === selectedCategory);
+  const filteredArticles = blogArticles.filter((article) => {
+    const matchesCategory = selectedCategory === 'todos' || article.category === selectedCategory;
+    const matchesSearch =
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.author.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
   const currentArticles = filteredArticles.slice(
@@ -31,7 +47,6 @@ const BlogSection = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Contenido principal */}
         <div className="lg:col-span-3">
           {/* Artículo destacado */}
           <div className="mb-8">
@@ -60,9 +75,17 @@ const BlogSection = () => {
 
           {/* Grilla de artículos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {currentArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+            {currentArticles.length > 0 ? (
+              currentArticles.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-8">
+                <p className="text-gray-500">
+                  No se encontraron artículos que coincidan con "<strong>{searchQuery}</strong>"
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Paginación */}
@@ -91,7 +114,7 @@ const BlogSection = () => {
         </div>
       </div>
 
-      {/* ✅ Anuncios únicos (no duplicados) */}
+      {/* Anuncios */}
       <AdBanners />
     </main>
   );
