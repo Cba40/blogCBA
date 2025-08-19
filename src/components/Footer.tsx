@@ -65,40 +65,66 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors">
-                  Inicio
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors">
-                  Últimas Noticias
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors">
-                  Categorías
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors">
-                  Archivo
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-teal-400 transition-colors">
-                  Contacto
-                </a>
-              </li>
-            </ul>
-          </div>
+          
+          {/* Enlaces Rápidos */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
+              <ul className="space-y-2">
+                {/* Inicio */}
+                <li>
+                  <a
+                    href="/"
+                    className="text-gray-300 hover:text-teal-400 transition-colors"
+                  >
+                    Inicio
+                  </a>
+                </li>
 
-         {/* Contact Info */}
-          {/* Contact Info */}
+                {/* Últimas Noticias */}
+                <li>
+                  <a
+                    href="/"
+                    className="text-gray-300 hover:text-teal-400 transition-colors"
+                  >
+                    Últimas Noticias
+                  </a>
+                </li>
+
+                {/* Categorías */}
+                <li>
+                  <a
+                    href="/"
+                    className="text-gray-300 hover:text-teal-400 transition-colors"
+                  >
+                    Categorías
+                  </a>
+                </li>
+
+                {/* Archivo → Reemplazado por CBA 4.0 Web */}
+                <li>
+                  <a
+                    href="https://cba4puntocero.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-300 hover:text-teal-400 transition-colors"
+                  >
+                    CBA 4.0 Web
+                  </a>
+                </li>
+
+                {/* Contacto */}
+                <li>
+                  <a
+                    href="/contacto"
+                    className="text-gray-300 hover:text-teal-400 transition-colors"
+                  >
+                    Contacto
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+                  {/* Contact Info */}
           <div id="contacto" className="scroll-mt-20"> {/* ← Solo cambia esta línea */}
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <div className="space-y-3">
