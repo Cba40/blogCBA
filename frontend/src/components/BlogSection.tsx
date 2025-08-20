@@ -4,13 +4,15 @@ import FeaturedArticle from './FeaturedArticle';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
-import { blogArticles, featuredArticle } from '../data/articles';
+import { Article } from '../types/Article';
 
 const BlogSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('todos');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [featured, setFeatured] = useState<Article | null>(null);
 
   // Leer el término de búsqueda de la URL
   useEffect(() => {
@@ -18,9 +20,31 @@ const BlogSection = () => {
     setSearchQuery(q);
   }, [searchParams]);
 
+  // Cargar artículos desde la API
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/articles');
+        const data: Article[] = await res.json();
+
+        // Separar artículo destacado
+        const featuredArticle = data.find((a) => a.featured);
+        const regularArticles = data.filter((a) => !a.featured);
+
+        setFeatured(featuredArticle || null);
+        setArticles(regularArticles);
+      } catch (error) {
+        console.error('Error al cargar artículos desde la API', error);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
   const articlesPerPage = 6;
 
-  const filteredArticles = blogArticles.filter((article) => {
+  // Filtrar artículos (por categoría y búsqueda)
+  const filteredArticles = articles.filter((article) => {
     const matchesCategory = selectedCategory === 'todos' || article.category === selectedCategory;
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,9 +73,11 @@ const BlogSection = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">
           {/* Artículo destacado */}
-          <div className="mb-8">
-            <FeaturedArticle article={featuredArticle} />
-          </div>
+          {featured && (
+            <div className="mb-8">
+              <FeaturedArticle article={featured} />
+            </div>
+          )}
 
           {/* Filtros de categoría */}
           <div className="flex flex-wrap gap-2 mb-6">

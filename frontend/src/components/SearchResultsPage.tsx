@@ -1,39 +1,54 @@
+// src/components/SearchResultsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { blogArticles } from '../data/articles';
+import { useSearchParams } from 'react-router-dom'; // ✅ Mantenemos useSearchParams
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
+import { Article } from '../types/Article';
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true); // ✅ Estado de carga
-  const articlesPerPage = 6;
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-
-  // Simular carga (opcional: quitar en producción si es instantáneo)
+  // Cargar artículos desde la API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 600); // 600ms de carga visual suave
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/articles');
+        const data: Article[] = await res.json();
 
-    return () => clearTimeout(timer);
-  }, []);
+        // Filtrar por búsqueda
+        const filtered = data.filter(
+          (a) =>
+            a.title.toLowerCase().includes(query.toLowerCase()) ||
+            a.excerpt.toLowerCase().includes(query.toLowerCase()) ||
+            a.content.toLowerCase().includes(query.toLowerCase()) ||
+            a.author.toLowerCase().includes(query.toLowerCase())
+        );
 
-  // Filtrar artículos
-  const filteredArticles = blogArticles.filter(
-    (article) =>
-      article.title.toLowerCase().includes(query.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-      article.content.toLowerCase().includes(query.toLowerCase()) ||
-      article.author.toLowerCase().includes(query.toLowerCase())
-  );
+        setArticles(filtered);
+      } catch (error) {
+        console.error('Error al cargar artículos', error);
+        setArticles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-  const currentArticles = filteredArticles.slice(
+    if (query) {
+      fetchArticles();
+    } else {
+      setArticles([]);
+      setLoading(false);
+    }
+  }, [query]);
+
+  const articlesPerPage = 6;
+  const totalPages = Math.ceil(articles.length / articlesPerPage);
+  const currentArticles = articles.slice(
     (currentPage - 1) * articlesPerPage,
     currentPage * articlesPerPage
   );
@@ -43,7 +58,7 @@ const SearchResultsPage = () => {
       {/* Botón Volver al Inicio */}
       <div className="mb-6">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => window.history.back()} // ✅ Usamos el navegador nativo
           className="text-teal-600 hover:text-teal-800 font-medium flex items-center gap-2"
         >
           ← Volver al inicio
@@ -56,19 +71,17 @@ const SearchResultsPage = () => {
           Resultados para: <span className="text-teal-600">"{query}"</span>
         </h1>
         <p className="text-gray-600 mt-2">
-          {filteredArticles.length} artículo{filteredArticles.length !== 1 ? 's' : ''} encontrado{filteredArticles.length !== 1 ? 's' : ''}
+          {articles.length} artículo{articles.length !== 1 ? 's' : ''} encontrado{articles.length !== 1 ? 's' : ''}
         </p>
       </div>
 
-      {/* Spinner de carga */}
-      {isLoading ? (
+      {loading ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <div className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-500">Buscando artículos...</p>
         </div>
       ) : currentArticles.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Resultados */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {currentArticles.map((article) => (
@@ -102,7 +115,6 @@ const SearchResultsPage = () => {
           </div>
         </div>
       ) : (
-        /* No hay resultados */
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">
             No se encontraron artículos que coincidan con "<strong>{query}</strong>"
@@ -110,8 +122,8 @@ const SearchResultsPage = () => {
         </div>
       )}
 
-      {/* Anuncios (solo si no está cargando) */}
-      {!isLoading && <AdBanners />}
+      {/* Anuncios */}
+      {!loading && <AdBanners />}
     </main>
   );
 };
