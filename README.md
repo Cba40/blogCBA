@@ -64,7 +64,7 @@ Panel de admin:http://localhost:5173/admin
 🛠 Requisitos previos
 Asegúrate de tener instalado:
 
-✅ Node.js (versión 18 o superior)
+✅ Node.js (versión 18 o superior)/n
 ✅ npm (incluido con Node.js)
 ✅ Git
 ✅ Editor de código (recomendado: VS Code)
