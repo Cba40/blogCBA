@@ -134,16 +134,16 @@ npm install Instala dependencias
 📁 Archivos clave
 ARCHIVO / FUNCIÓN
 
-frontend/src/components/AdminLogin.tsx
+frontend/src/components/AdminLogin.tsx -> 
 Cambiar contraseña de acceso
 
-backend/seed.js
+backend/seed.js -> 
 Cargar artículos iniciales
 
-backend/server.js
+backend/server.js -> 
 API REST con Express
 
-frontend/vite.config.js
+frontend/vite.config.js -> 
 Configuración del front-end
 
 
