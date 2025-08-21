@@ -39,19 +39,26 @@ npm install
 # 3. Iniciar el servidor
 npm run dev
 
-✅ El back-end se ejecutará en:
-👉 http://localhost:5000
-✅ Verás: ✅ Servidor corriendo en http://localhost:5000
+✅ El back-end se ejecutará en: 👉 http://localhost:5000
+
+✅ Verás: 
+
+✅ Servidor corriendo en http://localhost:5000
 
 
 # Dentro de la carpeta backend
 node seed.js
+
 ✅ 10 artículos cargados en la base de datos
 
 🔐 5. Acceder al Panel de Administración
+
 Visita: http://localhost:5173/admin-login
+
 Usa la contraseña: cba40blog
+
 Serás redirigido a /admin para crear o editar artículos
+
 🔒 Puedes cambiar la contraseña en frontend/src/components/AdminLogin.tsx. 
 
 🧪 6. Probar el funcionamiento
