@@ -8,7 +8,7 @@ const AdminPanel = () => {
 
   // Verificar autenticación
   useEffect(() => {
-    const isAdmin = sessionStorage.getItem('isAdmin');
+    const isAdmin = localStorage.getItem('isAdmin');
     if (!isAdmin) {
       navigate('/admin-login');
     }

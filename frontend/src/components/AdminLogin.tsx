@@ -14,6 +14,7 @@ const AdminLogin = () => {
     if (password === correctPassword) {
       // Guardamos que está autenticado (en memoria o sessionStorage)
      localStorage.setItem('isAdmin', 'true');
+      console.log('✅ Login exitoso, redirigiendo...');
       navigate('/admin');
     } else {
       setError('Contraseña incorrecta');
