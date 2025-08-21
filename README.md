@@ -99,21 +99,17 @@ Asegúrate de tener instalado:
 
 COMANDO / DESCRIPCIÓN
 
-npm run dev (en frontend/)
-
+npm run dev (en frontend/) -> 
 Inicia el servidor de desarrollo del front
 
-npm run dev (en backend/)
-
+npm run dev (en backend/) -> 
 Inicia el servidor del back-end
 
 
-node seed.js (en backend/)
-
+node seed.js (en backend/) -> 
 Carga los artículos iniciales
 
-Ctrl + C Detiene cualquier servidor
-
+Ctrl + C Detiene cualquier servidor -> 
 npm install Instala dependencias
 
 
