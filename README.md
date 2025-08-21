@@ -103,10 +103,15 @@ Instala dependencias
 Si ves:
 
 ✅ Artículos en el blog
+
 ✅ Imágenes visibles
+
 ✅ Búsqueda funcional
+
 ✅ Panel de admin accesible
+
 ✅ CRUD de artículos (crear, editar, eliminar)
+
 🎉 ¡El proyecto está funcionando correctamente!
 
 📁 Archivos clave
