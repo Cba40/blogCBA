@@ -19,11 +19,11 @@ cd frontend
 
 
 # 2. Instalar dependencias
-npm install
+Ejecutar npm install
 
 
 # 3. Iniciar el servidor de desarrollo
-npm run dev
+Ejecutar npm run dev
 
 ✅ El front se abrirá automáticamente en:
 👉 http://localhost:5173
@@ -32,11 +32,11 @@ npm run dev
 cd backend
 
 # 2. Instalar dependencias
-npm install
+Ejecutar npm install
 
 
 # 3. Iniciar el servidor
-npm run dev
+Ejecutar npm run dev
 
 ✅ El back-end se ejecutará en: 👉 http://localhost:5000
 
@@ -46,7 +46,7 @@ npm run dev
 
 
 # 4 Dentro de la carpeta backend
-node seed.js
+Ejecutar node seed.js
 
 ✅ 10 artículos cargados en la base de datos
 
