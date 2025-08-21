@@ -55,16 +55,11 @@ Serás redirigido a /admin para crear o editar artículos
 🔒 Puedes cambiar la contraseña en frontend/src/components/AdminLogin.tsx. 
 
 🧪 6. Probar el funcionamiento
-PÁGINA
-URL
-Blog principal
-http://localhost:5173
-Artículo de ejemplo
-http://localhost:5173/article/1
-Búsqueda
-http://localhost:5173/buscar?q=ia
-Panel de admin
-http://localhost:5173/admin
+PÁGINA/ URL
+Blog principal: http://localhost:5173
+Artículo de ejemplo: http://localhost:5173/article/1
+Búsqueda:http://localhost:5173/buscar?q=ia
+Panel de admin:http://localhost:5173/admin
 
 🛠 Requisitos previos
 Asegúrate de tener instalado:
