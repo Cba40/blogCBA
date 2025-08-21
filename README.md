@@ -13,11 +13,6 @@ Esta guía te ayudará a instalar y ejecutar el proyecto localmente para probarl
 ## 📦 . Clonar el repositorio
 
 
-cba-blog/
-├── frontend/       → Frontend (React + Vite)
-├── backend/        → Backend (Node.js + Express + SQLite)
-└── README.md       → Este archivo
-
 
 # 1. Entrar a la carpeta frontend
 cd frontend
