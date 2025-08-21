@@ -10,7 +10,7 @@ Esta guía te ayudará a instalar y ejecutar el proyecto localmente para probarl
 
 ---
 
-## 📦 1. Clonar el repositorio
+## 📦 . Clonar el repositorio
 
 
 cba-blog/
@@ -18,11 +18,14 @@ cba-blog/
 ├── backend/        → Backend (Node.js + Express + SQLite)
 └── README.md       → Este archivo
 
+
 # 1. Entrar a la carpeta frontend
 cd frontend
 
+
 # 2. Instalar dependencias
 npm install
+
 
 # 3. Iniciar el servidor de desarrollo
 npm run dev
@@ -36,6 +39,7 @@ cd backend
 # 2. Instalar dependencias
 npm install
 
+
 # 3. Iniciar el servidor
 npm run dev
 
@@ -46,10 +50,11 @@ npm run dev
 ✅ Servidor corriendo en http://localhost:5000
 
 
-# Dentro de la carpeta backend
+# 4 Dentro de la carpeta backend
 node seed.js
 
 ✅ 10 artículos cargados en la base de datos
+
 
 🔐 5. Acceder al Panel de Administración
 
@@ -60,6 +65,8 @@ Usa la contraseña: cba40blog
 Serás redirigido a /admin para crear o editar artículos
 
 🔒 Puedes cambiar la contraseña en frontend/src/components/AdminLogin.tsx. 
+
+
 
 🧪 6. Probar el funcionamiento
 
@@ -84,6 +91,8 @@ Asegúrate de tener instalado:
 
 ✅ Editor de código (recomendado: VS Code)
 
+
+
 📝 Notas importantes
 📁 Las imágenes están en frontend/public/imagenes/ImagenesArticulos/
 
@@ -94,6 +103,8 @@ Asegúrate de tener instalado:
 🌐 El front y el back deben correr al mismo tiempo (en terminales separadas)
 
 🚫 No uses el botón de "atrás" del navegador para volver al panel después de cerrar sesión
+
+
 
 🧩 Comandos útiles
 
@@ -124,6 +135,8 @@ npm install Instala dependencias
 ✅ Panel de admin accesible
 
 ✅ CRUD de artículos (crear, editar, eliminar)
+
+
 
 🎉 ¡El proyecto está funcionando correctamente!
 
