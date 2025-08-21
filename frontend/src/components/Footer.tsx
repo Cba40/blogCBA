@@ -121,9 +121,18 @@ const Footer = () => {
                     Contacto
                   </a>
                 </li>
+              
+            {/* Enlace discreto al login */}
+              <li>
+                <a 
+                  href="/admin-login" 
+                  className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
+                >
+                  Noticias
+                </a>
+              </li>
               </ul>
             </div>
-
                   {/* Contact Info */}
           <div id="contacto" className="scroll-mt-20"> {/* ← Solo cambia esta línea */}
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>

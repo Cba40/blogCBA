@@ -94,8 +94,29 @@ const ArticlePage = () => {
           />
 
           {/* Contenido */}
-          <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed whitespace-pre-line">
-            {article.content.trim()}
+          <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
+            {article.content
+              .split('\n')
+              .map((line, index) => {
+                if (line.startsWith('## ')) {
+                  return (
+                    <h3
+                      key={index}
+                      className="text-2xl font-semibold text-gray-900 mt-8 mb-2"
+                    >
+                      {line.slice(3)}
+                    </h3>
+                  );
+                } else if (line.trim() === '') {
+                  return <br key={index} />;
+                } else {
+                  return (
+                    <p key={index} className="mb-4">
+                      {line}
+                    </p>
+                  );
+                }
+              })}
           </div>
 
           {/* Anuncios después del contenido */}

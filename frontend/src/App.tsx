@@ -4,6 +4,8 @@ import BlogSection from './components/BlogSection';
 import ArticlePage from './components/ArticlePage';
 import ContactPage from './components/ContactPage';
 import SearchResultsPage from './components/SearchResultsPage';
+import AdminPanel from './components/AdminPanel';
+import AdminLogin from './components/AdminLogin';
 import Layout from './components/Layout';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -21,6 +23,8 @@ function App() {
             <Route path="/article/:id" element={<ArticlePage />} />
             <Route path="/contacto" element={<ContactPage />} />
             <Route path="/buscar" element={<SearchResultsPage />} />
+             <Route path="/admin-login" element={<AdminLogin />} />
+             <Route path="/admin" element={<AdminPanel />} />
           </Routes>
         </Layout>
       </div>
