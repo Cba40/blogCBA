@@ -32,6 +32,9 @@ cd frontend
 # Instalar dependencias
 npm install
 
+# cargar la base de datos
+node seed.js
+
 # Iniciar el servidor
 npm run dev
 ```
