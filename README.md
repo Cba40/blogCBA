@@ -123,11 +123,3 @@ Puedes crear, editar o eliminar artículos desde el panel de admin.
 ¡Listo!  
 Ahora podés navegar, buscar y gestionar artículos sin problemas.
 ```
-
----
-
-✅ **Listo para usar.**  
-Solo copia y pega este contenido en un archivo llamado `README.md` en la raíz de tu repositorio.
-
-¿Querés que ahora te ayude a subir el proyecto a GitHub o a desplegarlo en producción?  
-¡Estoy acá para ayudarte! 🚀
