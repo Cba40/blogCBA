@@ -1,14 +1,15 @@
+// backend/server.js
 import express from 'express';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import cors from 'cors'; // ✅ 1. Importa cors
+import cors from 'cors';
 
 const app = express();
 const PORT = 5000;
 
-// ✅ 2. Habilita CORS (antes de cualquier ruta)
+// Habilitar CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // Permite solo tu front
+  origin: 'http://localhost:5173',
   credentials: true,
 }));
 
@@ -24,7 +25,7 @@ let db;
       driver: sqlite3.Database,
     });
 
-    // Crear tabla si no existe
+    // Crear tabla 'articles' si no existe
     await db.exec(`
       CREATE TABLE IF NOT EXISTS articles (
         id TEXT PRIMARY KEY,
@@ -39,11 +40,59 @@ let db;
         featured INTEGER DEFAULT 0
       )
     `);
+
+    // Crear tabla 'subscribers' si no existe
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS subscribers (
+        id TEXT PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        createdAt TEXT NOT NULL
+      )
+    `);
+
     console.log('✅ Base de datos lista');
   } catch (error) {
     console.error('❌ Error al conectar con SQLite:', error);
   }
 })();
+
+// 🔹 Ruta: Suscribir correo
+app.post('/api/subscribers', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ message: 'Email inválido' });
+  }
+
+  try {
+    const id = Date.now().toString();
+    const createdAt = new Date().toISOString();
+
+    await db.run(
+      `INSERT INTO subscribers (id, email, createdAt) VALUES (?, ?, ?)`,
+      [id, email, createdAt]
+    );
+
+    res.status(201).json({ message: 'Suscrito exitosamente' });
+  } catch (error) {
+    // Si el email ya existe
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      res.status(200).json({ message: 'Ya estás suscrito' });
+    } else {
+      res.status(500).json({ message: 'Error al suscribir' });
+    }
+  }
+});
+
+// 🔹 GET: Todos los suscriptores
+app.get('/api/subscribers', async (req, res) => {
+  try {
+    const subscribers = await db.all('SELECT email, createdAt FROM subscribers ORDER BY createdAt DESC');
+    res.json(subscribers);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener suscriptores' });
+  }
+});
 
 // 🔹 GET: Todos los artículos
 app.get('/api/articles', async (req, res) => {
@@ -126,9 +175,146 @@ app.get('/', (req, res) => {
     <h1>✅ API del CBA Blog</h1>
     <p>Base de datos: SQLite (db.sqlite)</p>
     <p><a href="/api/articles">Ver artículos</a></p>
+    <p><a href="/api/subscribers">Ver suscriptores (protegido)</a></p>
   `);
 });
 
+// 🔹 POST: Enviar newsletter a todos los suscriptores
+app.post('/api/newsletter', async (req, res) => {
+  const { subject, content } = req.body;
+
+  if (!subject || !content) {
+    return res.status(400).json({ message: 'Faltan asunto o contenido' });
+  }
+
+  try {
+    // Obtener suscriptores
+    const subscribers = await db.all('SELECT email FROM subscribers');
+    const emails = subscribers.map(s => s.email);
+
+    if (emails.length === 0) {
+      return res.status(200).json({ message: 'No hay suscriptores' });
+    }
+
+    // Configurar Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'tucorreo@gmail.com',        // ← Tu correo
+        pass: 'tu-app-password',          // ← App Password de 16 caracteres
+      },
+    });
+
+    // Plantilla HTML profesional
+    const htmlTemplate = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>${subject}</title>
+        <style>
+          body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+            background: #009688;
+            color: white;
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 500;
+          }
+          .content {
+            padding: 30px;
+            font-size: 16px;
+            background: #fff;
+          }
+          .content p {
+            margin: 0 0 16px 0;
+            color: #444;
+          }
+          .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+          }
+          .footer a {
+            color: #009688;
+            text-decoration: none;
+          }
+          .footer a:hover {
+            text-decoration: underline;
+          }
+          .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 16px 0;
+            background: #009688;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+          }
+          .btn:hover {
+            background: #00796b;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${subject}</h1>
+          </div>
+          <div class="content">
+            ${content.replace(/\n/g, '<br>')}
+          </div>
+          <div class="footer">
+            <p>
+              <a href="https://tudominio.com/unsubscribe">Darse de baja</a> | 
+              <a href="https://tudominio.com">Visitar sitio web</a>
+            </p>
+            <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Enviar email
+    await transporter.sendMail({
+      from: 'CBA Blog <tucorreo@gmail.com>',
+      to: emails,
+      subject,
+      html: htmlTemplate,
+    });
+
+    res.json({ message: `✅ Newsletter enviado a ${emails.length} suscriptor(es)` });
+  } catch (error) {
+    console.error('Error al enviar newsletter:', error);
+    res.status(500).json({ message: '❌ Error al enviar emails. Revisa la consola.' });
+  }
+});
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);

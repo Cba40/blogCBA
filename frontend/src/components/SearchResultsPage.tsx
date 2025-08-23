@@ -13,6 +13,10 @@ const SearchResultsPage = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   // Cargar artículos desde la API
   useEffect(() => {
     const fetchArticles = async () => {

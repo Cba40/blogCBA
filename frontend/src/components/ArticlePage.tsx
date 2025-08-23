@@ -11,6 +11,11 @@ const ArticlePage = () => {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Scroll al leer el articulo
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}, []);
+
   // Cargar el artículo desde la API
   useEffect(() => {
     const fetchArticle = async () => {

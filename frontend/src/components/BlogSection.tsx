@@ -14,6 +14,11 @@ const BlogSection = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [featured, setFeatured] = useState<Article | null>(null);
 
+  // Scroll al cambiar de página
+   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   // Leer el término de búsqueda de la URL
   useEffect(() => {
     const q = searchParams.get('q') || '';
