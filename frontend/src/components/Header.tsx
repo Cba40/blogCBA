@@ -42,12 +42,15 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="bg-teal-600 p-2 rounded-lg">
+          <div 
+            className="flex items-center space-x-3 cursor-pointer" 
+            onClick={() => navigate('/')}
+>
+            <div className="bg-teal-600 p-1.5 rounded-full">
               <img
                 src="/imagenes/logo.webp"
                 alt="Logo CBA Blog"
-                className="h-8 w-8 object-cover rounded"
+                className="h-10 w-10 object-cover rounded-full"
               />
             </div>
             <div>
@@ -86,6 +89,11 @@ const Header = () => {
             <a href="/contacto" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
               Contacto
             </a>
+
+            <a href="/favoritos" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+              Favoritos
+            </a>
+
           </nav>
 
           {/* Mobile Menu Button */}
@@ -113,23 +121,35 @@ const Header = () => {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </form>
 
-              {/* Mobile Navigation */}
-              <nav className="flex flex-col space-y-2">
-                <a href="/" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                  Inicio
-                </a>
-                <a
-                  href="https://cba4puntocero.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                >
-                  Cba 4.0 Web
-                </a>
-                <a href="/contacto" className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                  Contacto
-                </a>
-              </nav>
+             {/* Mobile Navigation */}
+                <nav className="flex flex-col space-y-2">
+                  <a
+                    href="/"
+                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    Inicio
+                  </a>
+                  <a
+                    href="https://cba4puntocero.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    Cba 4.0 Web
+                  </a>
+                  <a
+                    href="/contacto"
+                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    Contacto
+                  </a>
+                  <a
+                    href="/favoritos"
+                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  >
+                    Favoritos
+                  </a>
+                </nav>
             </div>
           </div>
         )}

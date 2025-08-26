@@ -3,6 +3,10 @@ import express from 'express';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import cors from 'cors';
+import nodemailer from 'nodemailer'; // ✅ Importado
+import dotenv from 'dotenv'; // ✅ Para variables de entorno
+
+dotenv.config(); // Carga las variables de .env
 
 const app = express();
 const PORT = 5000;
@@ -75,7 +79,6 @@ app.post('/api/subscribers', async (req, res) => {
 
     res.status(201).json({ message: 'Suscrito exitosamente' });
   } catch (error) {
-    // Si el email ya existe
     if (error.code === 'SQLITE_CONSTRAINT') {
       res.status(200).json({ message: 'Ya estás suscrito' });
     } else {
@@ -169,16 +172,6 @@ app.delete('/api/articles/:id', async (req, res) => {
   }
 });
 
-// 🔹 Ruta de prueba
-app.get('/', (req, res) => {
-  res.send(`
-    <h1>✅ API del CBA Blog</h1>
-    <p>Base de datos: SQLite (db.sqlite)</p>
-    <p><a href="/api/articles">Ver artículos</a></p>
-    <p><a href="/api/subscribers">Ver suscriptores (protegido)</a></p>
-  `);
-});
-
 // 🔹 POST: Enviar newsletter a todos los suscriptores
 app.post('/api/newsletter', async (req, res) => {
   const { subject, content } = req.body;
@@ -196,16 +189,24 @@ app.post('/api/newsletter', async (req, res) => {
       return res.status(200).json({ message: 'No hay suscriptores' });
     }
 
+    // Obtener artículo destacado
+    const featuredArticle = await db.get(`
+      SELECT * FROM articles 
+      WHERE featured = 1 
+      ORDER BY rowid DESC 
+      LIMIT 1
+    `);
+
     // Configurar Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'tucorreo@gmail.com',        // ← Tu correo
-        pass: 'tu-app-password',          // ← App Password de 16 caracteres
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
       },
     });
 
-    // Plantilla HTML profesional
+    // Plantilla HTML con noticia destacada
     const htmlTemplate = `
       <!DOCTYPE html>
       <html lang="es">
@@ -228,7 +229,7 @@ app.post('/api/newsletter', async (req, res) => {
             background: #ffffff;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
           }
           .header {
             background: #009688;
@@ -250,6 +251,34 @@ app.post('/api/newsletter', async (req, res) => {
             margin: 0 0 16px 0;
             color: #444;
           }
+          .featured {
+            border-left: 4px solid #009688;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+          }
+          .featured h2 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #009688;
+          }
+          .featured img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+          }
+          .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 15px 0;
+            background: #009688;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+          }
           .footer {
             text-align: center;
             padding: 20px;
@@ -262,23 +291,6 @@ app.post('/api/newsletter', async (req, res) => {
             color: #009688;
             text-decoration: none;
           }
-          .footer a:hover {
-            text-decoration: underline;
-          }
-          .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            margin: 16px 0;
-            background: #009688;
-            color: white !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-          }
-          .btn:hover {
-            background: #00796b;
-          }
         </style>
       </head>
       <body>
@@ -288,11 +300,21 @@ app.post('/api/newsletter', async (req, res) => {
           </div>
           <div class="content">
             ${content.replace(/\n/g, '<br>')}
+
+            ${featuredArticle ? `
+            <div class="featured">
+              <h2>${featuredArticle.title}</h2>
+              <img src="${process.env.DOMAIN}${featuredArticle.image}" alt="${featuredArticle.title}">
+              <p><strong>${featuredArticle.excerpt}</strong></p>
+              <a href="${process.env.DOMAIN}/article/${featuredArticle.id}" class="btn">Leer más</a>
+            </div>
+            ` : ''}
+
           </div>
           <div class="footer">
             <p>
-              <a href="https://tudominio.com/unsubscribe">Darse de baja</a> | 
-              <a href="https://tudominio.com">Visitar sitio web</a>
+              <a href="${process.env.DOMAIN}/unsubscribe">Darse de baja</a> | 
+              <a href="${process.env.DOMAIN}">Visitar sitio web</a>
             </p>
             <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
           </div>
@@ -301,7 +323,6 @@ app.post('/api/newsletter', async (req, res) => {
       </html>
     `;
 
-    // Enviar email
     await transporter.sendMail({
       from: 'CBA Blog <tucorreo@gmail.com>',
       to: emails,
@@ -312,9 +333,20 @@ app.post('/api/newsletter', async (req, res) => {
     res.json({ message: `✅ Newsletter enviado a ${emails.length} suscriptor(es)` });
   } catch (error) {
     console.error('Error al enviar newsletter:', error);
-    res.status(500).json({ message: '❌ Error al enviar emails. Revisa la consola.' });
+    res.status(500).json({ message: '❌ Error al enviar emails' });
   }
 });
+
+// 🔹 Ruta de prueba
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>✅ API del CBA Blog</h1>
+    <p>Base de datos: SQLite (db.sqlite)</p>
+    <p><a href="/api/articles">Ver artículos</a></p>
+    <p><a href="/api/subscribers">Ver suscriptores</a></p>
+  `);
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);

@@ -5,7 +5,9 @@ import ArticlePage from './components/ArticlePage';
 import ContactPage from './components/ContactPage';
 import SearchResultsPage from './components/SearchResultsPage';
 import AdminPanel from './components/AdminPanel';
+import FavoritesPage from './components/FavoritesPage';
 import AdminLogin from './components/AdminLogin';
+
 import Layout from './components/Layout';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -25,6 +27,7 @@ function App() {
             <Route path="/buscar" element={<SearchResultsPage />} />
              <Route path="/admin-login" element={<AdminLogin />} />
              <Route path="/admin" element={<AdminPanel />} />
+             <Route path="/favoritos" element={<FavoritesPage />} />
           </Routes>
         </Layout>
       </div>
