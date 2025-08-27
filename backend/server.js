@@ -11,6 +11,10 @@ dotenv.config(); // Carga las variables de .env
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+});
+
 // Habilitar CORS
 app.use(cors({
   origin: 'http://localhost:5173',
