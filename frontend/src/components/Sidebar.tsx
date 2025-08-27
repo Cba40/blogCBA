@@ -42,47 +42,47 @@ const Sidebar = () => {
         icon={<TrendingUp className="w-12 h-12 text-teal-600" />}
       />
 
-      <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const email = new FormData(e.currentTarget).get('email') as string;
+     <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const email = new FormData(e.currentTarget).get('email') as string;
 
-            try {
-              const res = await fetch('http://localhost:5000/api/subscribers', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-              });
+          try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email }),
+            });
 
-              const data = await res.json();
-              alert(data.message);
-              e.currentTarget.reset();
-            } catch (err) {
-              alert('Error de conexión. Intenta nuevamente.');
-            }
-          }}
-          className="space-y-3"
+            const data = await res.json();
+            alert(data.message);
+            e.currentTarget.reset();
+          } catch (err) {
+            alert('Error de conexión. Intenta nuevamente.');
+          }
+        }}
+        className="space-y-3"
+      >
+        <p className="text-center text-gray-600 mb-2 text-sm">
+          Recibe las últimas noticias tecnológicas directamente en tu bandeja.
+        </p>
+        <input
+          type="email"
+          name="email"
+          placeholder="Tu correo electrónico"
+          required
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+        />
+        
+        <button
+          type="submit"
+          className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
         >
-          <p className="text-center text-gray-600 mb-2 text-sm">
-            Recibe las últimas noticias tecnológicas directamente en tu bandeja.
-          </p>
-          <input
-            type="email"
-            name="email"
-            placeholder="Tu correo electrónico"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
-          />
-          
-          <button
-            type="submit"
-            className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
-          >
-            Suscribirse
-          </button>
-        </form>
+          Suscribirse
+        </button>
+      </form>
 
       {/* Bottom Banner Ad */}
       <div className="bg-gray-100 py-3 text-center rounded-lg">

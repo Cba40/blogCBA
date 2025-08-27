@@ -1,11 +1,12 @@
 // src/pages/FavoritesPage.tsx
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams  } from 'react-router-dom';
 import { ArrowLeft, Heart } from 'lucide-react';
 import ArticleCard from '../components/ArticleCard';
 import { Article } from '../types/Article';
 
 const FavoritesPage = () => {
+  const { id } = useParams<{ id: string }>();
   const [favorites, setFavorites] = useState<Article[]>([]);
   const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,7 @@ const FavoritesPage = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/articles');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
         const data: Article[] = await res.json();
         setAllArticles(data);
       } catch (err) {

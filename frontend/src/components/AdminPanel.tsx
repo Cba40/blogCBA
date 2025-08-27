@@ -15,9 +15,9 @@ const AdminPanel = () => {
   }, [navigate]);
 
   const [newsletter, setNewsletter] = useState({
-  subject: '',
-  content: '',
-});
+    subject: '',
+    content: '',
+  });
 
   // Estado para el formulario
   const [article, setArticle] = useState<Omit<Article, 'id'> & { id?: string }>({
@@ -48,7 +48,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/articles');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
         const data = await res.json();
         setArticles(data);
       } catch (err) {
@@ -63,7 +63,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchSubscribers = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/subscribers');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`);
         const data = await res.json();
         setSubscribers(data);
       } catch (err) {
@@ -117,7 +117,7 @@ const AdminPanel = () => {
     if (!window.confirm('¿Estás seguro de eliminar este artículo?')) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/articles/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`, {
         method: 'DELETE',
       });
 
@@ -141,8 +141,8 @@ const AdminPanel = () => {
     try {
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId
-        ? `http://localhost:5000/api/articles/${editingId}`
-        : 'http://localhost:5000/api/articles';
+        ? `${import.meta.env.VITE_API_URL}/api/articles/${editingId}`
+        : `${import.meta.env.VITE_API_URL}/api/articles`;
 
       const body = {
         ...article,
@@ -171,6 +171,23 @@ const AdminPanel = () => {
       }
     } catch (err) {
       setMessage('❌ Error de conexión con el servidor');
+    }
+  };
+
+  // Manejar envío de newsletter
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newsletter),
+      });
+      const data = await res.json();
+      alert(data.message);
+      setNewsletter({ subject: '', content: '' });
+    } catch (err) {
+      alert('Error de conexión');
     }
   };
 
@@ -392,167 +409,136 @@ const AdminPanel = () => {
               Total: <strong>{subscribers.length}</strong> suscriptor{subscribers.length !== 1 ? 'es' : ''}
             </p>
           </div>
-{/* Formulario de Newsletter */}
-{/* Formulario de Newsletter */}
-<div className="mt-10 bg-white p-6 rounded-xl shadow-lg">
-  <h2 className="text-xl font-semibold text-gray-900 mb-4">Enviar Newsletter</h2>
-  <form
-    onSubmit={async (e) => {
-      e.preventDefault();
-      try {
-        const res = await fetch('http://localhost:5000/api/newsletter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newsletter),
-        });
-        const data = await res.json();
-        alert(data.message);
-        // Opcional: limpiar después de enviar
-        setNewsletter({ subject: '', content: '' });
-      } catch (err) {
-        alert('Error de conexión');
-      }
-    }}
-    className="space-y-4"
-  >
-    <input
-      name="subject"
-      type="text"
-      placeholder="Asunto del correo"
-      required
-      value={newsletter.subject} // ✅ Conectado al estado
-      onChange={(e) => setNewsletter({ ...newsletter, subject: e.target.value })} // ✅ Actualiza estado
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-    />
-    <textarea
-      name="content"
-      placeholder="Contenido del newsletter (puedes usar saltos de línea)"
-      required
-      rows={6}
-      value={newsletter.content} // ✅ Conectado al estado
-      onChange={(e) => setNewsletter({ ...newsletter, content: e.target.value })} // ✅ Actualiza estado
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 font-mono text-sm"
-    />
 
-    <div className="flex gap-3">
-      {/* Botón Previsualizar */}
-      <button
-        type="button"
-        onClick={() => {
-          if (!newsletter.subject || !newsletter.content) {
-            alert('Completa el asunto y el contenido');
-            return;
-          }
-          setPreview({
-            subject: newsletter.subject,
-            content: newsletter.content,
-          });
-        }}
-        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-      >
-        Previsualizar
-      </button>
+          {/* Formulario de Newsletter */}
+          <div className="mt-10 bg-white p-6 rounded-xl shadow-lg">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Enviar Newsletter</h2>
+            <form onSubmit={handleNewsletterSubmit} className="space-y-4">
+              <input
+                name="subject"
+                type="text"
+                placeholder="Asunto del correo"
+                required
+                value={newsletter.subject}
+                onChange={(e) => setNewsletter({ ...newsletter, subject: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+              />
+              <textarea
+                name="content"
+                placeholder="Contenido del newsletter (puedes usar saltos de línea)"
+                required
+                rows={6}
+                value={newsletter.content}
+                onChange={(e) => setNewsletter({ ...newsletter, content: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 font-mono text-sm"
+              />
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newsletter.subject || !newsletter.content) {
+                      alert('Completa el asunto y el contenido');
+                      return;
+                    }
+                    setPreview({
+                      subject: newsletter.subject,
+                      content: newsletter.content,
+                    });
+                  }}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Previsualizar
+                </button>
 
-      {/* Botón Enviar */}
-      <button
-        type="submit"
-        className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-      >
-        Enviar a {subscribers.length} suscriptor{subscribers.length !== 1 ? 'es' : ''}
-      </button>
-    </div>
-  </form>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Enviar a {subscribers.length} suscriptor{subscribers.length !== 1 ? 'es' : ''}
+                </button>
+              </div>
+            </form>
 
-  {/* Previsualización */}
-  {preview && (
-    <div className="mt-6 p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Previsualización del Newsletter</h3>
-
-      {/* Simulación del correo */}
-      <div
-        style={{
-          fontFamily: 'Helvetica, Arial, sans-serif',
-          lineHeight: '1.6',
-          backgroundColor: '#f4f4f4',
-          padding: '20px',
-          borderRadius: '12px',
-          border: '1px solid #ddd',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '600px',
-            margin: '0 auto',
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          }}
-        >
-          {/* Header */}
-          <div
-            style={{
-              backgroundColor: '#009688',
-              color: 'white',
-              padding: '30px',
-              textAlign: 'center',
-            }}
-          >
-            <h1 style={{ margin: 0, fontSize: '24px' }}>{preview.subject}</h1>
+            {/* Previsualización */}
+            {preview && (
+              <div className="mt-6 p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Previsualización del Newsletter</h3>
+                <div
+                  style={{
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    lineHeight: '1.6',
+                    backgroundColor: '#f4f4f4',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    border: '1px solid #ddd',
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: '600px',
+                      margin: '0 auto',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: '#009688',
+                        color: 'white',
+                        padding: '30px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <h1 style={{ margin: 0, fontSize: '24px' }}>{preview.subject}</h1>
+                    </div>
+                    <div
+                      style={{
+                        padding: '30px',
+                        fontSize: '16px',
+                        color: '#444',
+                        backgroundColor: '#fff',
+                      }}
+                    >
+                      {preview.content.split('\n').map((line, i) => (
+                        <p key={i} style={{ margin: '0 0 16px 0' }}>
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        padding: '20px',
+                        fontSize: '12px',
+                        color: '#999',
+                        backgroundColor: '#f9f9f9',
+                        borderTop: '1px solid #eee',
+                      }}
+                    >
+                      <p>
+                        <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
+                          Darse de baja
+                        </a>{' '}
+                        |{' '}
+                        <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
+                          Visitar sitio web
+                        </a>
+                      </p>
+                      <p>&copy; {new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setPreview(null)}
+                  className="mt-4 text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Cerrar previsualización
+                </button>
+              </div>
+            )}
           </div>
-
-          {/* Content */}
-          <div
-            style={{
-              padding: '30px',
-              fontSize: '16px',
-              color: '#444',
-              backgroundColor: '#fff',
-            }}
-          >
-            {preview.content.split('\n').map((line, i) => (
-              <p key={i} style={{ margin: '0 0 16px 0' }}>
-                {line}
-              </p>
-            ))}
-          </div>
-
-          {/* Footer */}
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '20px',
-              fontSize: '12px',
-              color: '#999',
-              backgroundColor: '#f9f9f9',
-              borderTop: '1px solid #eee',
-            }}
-          >
-            <p>
-              <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
-                Darse de baja
-              </a>{' '}
-              |{' '}
-              <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
-                Visitar sitio web
-              </a>
-            </p>
-            <p>&copy; {new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Cerrar previsualización */}
-      <button
-        onClick={() => setPreview(null)}
-        className="mt-4 text-sm text-gray-500 hover:text-gray-700"
-      >
-        Cerrar previsualización
-      </button>
-    </div>
-  )}
-</div>
-
         </div>
       </div>
     </div>

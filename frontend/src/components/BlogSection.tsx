@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, {useState, useEffect } from 'react';
+import {useParams, useSearchParams } from 'react-router-dom';
 import FeaturedArticle from './FeaturedArticle';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
@@ -8,6 +8,7 @@ import { Article } from '../types/Article';
 
 const BlogSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('todos');
+  const { id } = useParams<{ id: string }>();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,7 +30,7 @@ const BlogSection = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/articles');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
         const data: Article[] = await res.json();
 
         // Separar artículo destacado

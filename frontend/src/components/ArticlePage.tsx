@@ -20,7 +20,7 @@ const ArticlePage = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/articles/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
         if (!res.ok) {
           throw new Error('No encontrado');
         }

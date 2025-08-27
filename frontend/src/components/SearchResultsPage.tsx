@@ -1,6 +1,6 @@
 // src/components/SearchResultsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom'; // ✅ Mantenemos useSearchParams
+import { useParams , useSearchParams } from 'react-router-dom'; // ✅ Mantenemos useSearchParams
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
@@ -8,6 +8,7 @@ import { Article } from '../types/Article';
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const query = searchParams.get('q') || '';
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -21,7 +22,7 @@ const SearchResultsPage = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/articles');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
         const data: Article[] = await res.json();
 
         // Filtrar por búsqueda
