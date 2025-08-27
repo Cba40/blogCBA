@@ -9,7 +9,7 @@ import dotenv from 'dotenv'; // ✅ Para variables de entorno
 dotenv.config(); // Carga las variables de .env
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Habilitar CORS
 app.use(cors({
