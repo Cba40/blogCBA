@@ -1,41 +1,44 @@
 // backend/server.js
+// backend/server.js
 import express from 'express';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import cors from 'cors';
-import nodemailer from 'nodemailer'; // ✅ Importado
-import dotenv from 'dotenv'; // ✅ Para variables de entorno
-dotenv.config(); // Carga las variables de .env
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Cargar variables de entorno
+dotenv.config();
 
 const app = express();
 
-// 🔹 Puerto dinámico
+// Puerto dinámico
 const PORT = process.env.PORT || 5000;
 
-// 🔹 Middlewares (orden correcto)
+// Habilitar CORS para desarrollo y producción
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production'
-      ? 'https://blogcba-backend.onrender.com' // ← Cambia esto si usas otro dominio
-      : 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',           // Vite dev
+      'https://blogcba.netlify.app',     // Netlify
+      'https://blogcba.vercel.app',      // Vercel
+      'https://tu-dominio.com'           // Cambia esto cuando tengas tu dominio
+    ],
     credentials: true,
   })
 );
 
+// Parsear JSON
 app.use(express.json());
 
-// 🔹 Tus rutas aquí (api/articles, subscribers, etc.)
-// app.use('/api', articleRoutes); // ejemplo si usas routers
+// Servir el frontend (solo en producción)
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// 🔹 Manejo de rutas del frontend (solo si sirves el dist/)
-app.use(express.static('dist')); // Asume que 'dist' está en la raíz del backend
+// Manejar rutas de React Router
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve('dist', 'index.html'));
-});
-
-// 🔹 Iniciar servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 // Abrir base de datos
@@ -79,23 +82,19 @@ let db;
   }
 })();
 
-// 🔹 Ruta: Suscribir correo
+// 🔹 Rutas de la API
 app.post('/api/subscribers', async (req, res) => {
   const { email } = req.body;
-
   if (!email || !email.includes('@')) {
     return res.status(400).json({ message: 'Email inválido' });
   }
-
   try {
     const id = Date.now().toString();
     const createdAt = new Date().toISOString();
-
     await db.run(
       `INSERT INTO subscribers (id, email, createdAt) VALUES (?, ?, ?)`,
       [id, email, createdAt]
     );
-
     res.status(201).json({ message: 'Suscrito exitosamente' });
   } catch (error) {
     if (error.code === 'SQLITE_CONSTRAINT') {
@@ -106,7 +105,6 @@ app.post('/api/subscribers', async (req, res) => {
   }
 });
 
-// 🔹 GET: Todos los suscriptores
 app.get('/api/subscribers', async (req, res) => {
   try {
     const subscribers = await db.all('SELECT email, createdAt FROM subscribers ORDER BY createdAt DESC');
@@ -116,7 +114,6 @@ app.get('/api/subscribers', async (req, res) => {
   }
 });
 
-// 🔹 GET: Todos los artículos
 app.get('/api/articles', async (req, res) => {
   try {
     const articles = await db.all('SELECT * FROM articles ORDER BY rowid DESC');
@@ -126,7 +123,6 @@ app.get('/api/articles', async (req, res) => {
   }
 });
 
-// 🔹 GET: Artículo por ID
 app.get('/api/articles/:id', async (req, res) => {
   try {
     const article = await db.get('SELECT * FROM articles WHERE id = ?', req.params.id);
@@ -137,14 +133,11 @@ app.get('/api/articles/:id', async (req, res) => {
   }
 });
 
-// 🔹 POST: Nuevo artículo
 app.post('/api/articles', async (req, res) => {
   const { id, title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
-
   if (!id || !title || !excerpt || !content) {
     return res.status(400).json({ message: 'Faltan campos requeridos' });
   }
-
   try {
     await db.run(
       `INSERT INTO articles (id, title, excerpt, content, author, date, readTime, category, image, featured)
@@ -157,15 +150,12 @@ app.post('/api/articles', async (req, res) => {
   }
 });
 
-// 🔹 PUT: Actualizar artículo
 app.put('/api/articles/:id', async (req, res) => {
   const { id } = req.params;
   const { title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
-
   try {
     const article = await db.get('SELECT * FROM articles WHERE id = ?', id);
     if (!article) return res.status(404).json({ message: 'No encontrado' });
-
     await db.run(
       `UPDATE articles SET
         title = ?, excerpt = ?, content = ?, author = ?, date = ?,
@@ -173,14 +163,12 @@ app.put('/api/articles/:id', async (req, res) => {
        WHERE id = ?`,
       [title, excerpt, content, author, date, readTime, category, image, featured ? 1 : 0, id]
     );
-
     res.json({ id, ...req.body });
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar', error: error.message });
   }
 });
 
-// 🔹 DELETE: Eliminar artículo
 app.delete('/api/articles/:id', async (req, res) => {
   try {
     const result = await db.run('DELETE FROM articles WHERE id = ?', req.params.id);
@@ -191,32 +179,23 @@ app.delete('/api/articles/:id', async (req, res) => {
   }
 });
 
-// 🔹 POST: Enviar newsletter a todos los suscriptores
 app.post('/api/newsletter', async (req, res) => {
   const { subject, content } = req.body;
-
   if (!subject || !content) {
     return res.status(400).json({ message: 'Faltan asunto o contenido' });
   }
-
   try {
-    // Obtener suscriptores
     const subscribers = await db.all('SELECT email FROM subscribers');
     const emails = subscribers.map(s => s.email);
-
     if (emails.length === 0) {
       return res.status(200).json({ message: 'No hay suscriptores' });
     }
-
-    // Obtener artículo destacado
     const featuredArticle = await db.get(`
       SELECT * FROM articles 
       WHERE featured = 1 
       ORDER BY rowid DESC 
       LIMIT 1
     `);
-
-    // Configurar Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -224,8 +203,6 @@ app.post('/api/newsletter', async (req, res) => {
         pass: process.env.GMAIL_PASS,
       },
     });
-
-    // Plantilla HTML con noticia destacada
     const htmlTemplate = `
       <!DOCTYPE html>
       <html lang="es">
@@ -234,92 +211,24 @@ app.post('/api/newsletter', async (req, res) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>${subject}</title>
         <style>
-          body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-          }
-          .header {
-            background: #009688;
-            color: white;
-            padding: 30px;
-            text-align: center;
-          }
-          .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 500;
-          }
-          .content {
-            padding: 30px;
-            font-size: 16px;
-            background: #fff;
-          }
-          .content p {
-            margin: 0 0 16px 0;
-            color: #444;
-          }
-          .featured {
-            border-left: 4px solid #009688;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-          }
-          .featured h2 {
-            margin: 0 0 10px 0;
-            font-size: 20px;
-            color: #009688;
-          }
-          .featured img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 10px 0;
-          }
-          .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 15px 0;
-            background: #009688;
-            color: white !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-          }
-          .footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #999;
-            background: #f9f9f9;
-            border-top: 1px solid #eee;
-          }
-          .footer a {
-            color: #009688;
-            text-decoration: none;
-          }
+          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+          .header { background: #009688; color: white; padding: 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; font-weight: 500; }
+          .content { padding: 30px; font-size: 16px; background: #fff; }
+          .content p { margin: 0 0 16px 0; color: #444; }
+          .featured { border-left: 4px solid #009688; margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+          .featured h2 { margin: 0 0 10px 0; font-size: 20px; color: #009688; }
+          .featured img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+          .btn { display: inline-block; padding: 10px 20px; margin: 15px 0; background: #009688; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; }
+          .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; background: #f9f9f9; border-top: 1px solid #eee; }
+          .footer a { color: #009688; text-decoration: none; }
         </style>
       </head>
       <body>
         <div class="container">
-          <div class="header">
-            <h1>${subject}</h1>
-          </div>
-          <div class="content">
-            ${content.replace(/\n/g, '<br>')}
-
+          <div class="header"><h1>${subject}</h1></div>
+          <div class="content">${content.replace(/\n/g, '<br>')}
             ${featuredArticle ? `
             <div class="featured">
               <h2>${featuredArticle.title}</h2>
@@ -328,44 +237,26 @@ app.post('/api/newsletter', async (req, res) => {
               <a href="${process.env.DOMAIN}/article/${featuredArticle.id}" class="btn">Leer más</a>
             </div>
             ` : ''}
-
           </div>
           <div class="footer">
-            <p>
-              <a href="${process.env.DOMAIN}/unsubscribe">Darse de baja</a> | 
-              <a href="${process.env.DOMAIN}">Visitar sitio web</a>
-            </p>
+            <p><a href="${process.env.DOMAIN}/unsubscribe">Darse de baja</a> | <a href="${process.env.DOMAIN}">Visitar sitio web</a></p>
             <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
           </div>
         </div>
       </body>
       </html>
     `;
-
     await transporter.sendMail({
       from: 'CBA Blog <tucorreo@gmail.com>',
       to: emails,
       subject,
       html: htmlTemplate,
     });
-
     res.json({ message: `✅ Newsletter enviado a ${emails.length} suscriptor(es)` });
   } catch (error) {
     console.error('Error al enviar newsletter:', error);
     res.status(500).json({ message: '❌ Error al enviar emails' });
   }
-});
-
-// 🔹 Ruta de prueba
-// 🔹 Sirve el frontend (archivos estáticos)
-const path = require('path');
-
-// En producción, sirve los archivos del frontend
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// 🔹 Maneja todas las rutas de React Router
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 // 🔹 Iniciar servidor
