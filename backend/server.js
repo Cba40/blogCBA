@@ -342,16 +342,18 @@ app.post('/api/newsletter', async (req, res) => {
 });
 
 // 🔹 Ruta de prueba
-app.get('/', (req, res) => {
-  res.send(`
-    <h1>✅ API del CBA Blog</h1>
-    <p>Base de datos: SQLite (db.sqlite)</p>
-    <p><a href="/api/articles">Ver artículos</a></p>
-    <p><a href="/api/subscribers">Ver suscriptores</a></p>
-  `);
+// 🔹 Sirve el frontend (archivos estáticos)
+const path = require('path');
+
+// En producción, sirve los archivos del frontend
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// 🔹 Maneja todas las rutas de React Router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+// 🔹 Iniciar servidor
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
