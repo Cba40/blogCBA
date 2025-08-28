@@ -5,23 +5,38 @@ import { open } from 'sqlite';
 import cors from 'cors';
 import nodemailer from 'nodemailer'; // ✅ Importado
 import dotenv from 'dotenv'; // ✅ Para variables de entorno
-
 dotenv.config(); // Carga las variables de .env
 
 const app = express();
+
+// 🔹 Puerto dinámico
 const PORT = process.env.PORT || 5000;
 
+// 🔹 Middlewares (orden correcto)
+app.use(
+  cors({
+    origin: process.env.NODE_ENV === 'production'
+      ? 'https://blogcba-backend.onrender.com' // ← Cambia esto si usas otro dominio
+      : 'http://localhost:5173',
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+// 🔹 Tus rutas aquí (api/articles, subscribers, etc.)
+// app.use('/api', articleRoutes); // ejemplo si usas routers
+
+// 🔹 Manejo de rutas del frontend (solo si sirves el dist/)
+app.use(express.static('dist')); // Asume que 'dist' está en la raíz del backend
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve('dist', 'index.html'));
+});
+
+// 🔹 Iniciar servidor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
-
-// Habilitar CORS
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
-
-app.use(express.json());
 
 // Abrir base de datos
 let db;
