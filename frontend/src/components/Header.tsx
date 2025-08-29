@@ -48,7 +48,7 @@ const Header = () => {
 >
             <div className="bg-teal-600 p-1.5 rounded-full">
               <img
-                src="/imagenes/logo.webp"
+                src="/frontend/public/logo.webp"
                 alt="Logo CBA Blog"
                 className="h-10 w-10 object-cover rounded-full"
               />
