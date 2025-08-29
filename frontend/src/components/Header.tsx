@@ -79,7 +79,7 @@ const Header = () => {
               Inicio
             </a>
             <a
-              href="https://cba4puntocero.com"
+              href="http://cbacuatropuntocero.com.ar/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
