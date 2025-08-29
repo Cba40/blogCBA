@@ -30,7 +30,7 @@ const BlogSection = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
         const data: Article[] = await res.json();
 
         // Separar artículo destacado

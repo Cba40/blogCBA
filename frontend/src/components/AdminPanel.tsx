@@ -60,20 +60,32 @@ const AdminPanel = () => {
   }, []);
 
   // Cargar suscriptores
-  useEffect(() => {
-    const fetchSubscribers = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`);
-        const data = await res.json();
-        setSubscribers(data);
-      } catch (err) {
-        console.error('Error al cargar suscriptores');
+ useEffect(() => {
+  const fetchSubscribers = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
-    };
+      
+      const data = await res.json();
+      
+      // Asegurarnos de que data es un array
+      if (Array.isArray(data)) {
+        setSubscribers(data);
+      } else {
+        console.error('La respuesta no es un array:', data);
+        setSubscribers([]);
+      }
+    } catch (err) {
+      console.error('Error al cargar suscriptores', err);
+      setSubscribers([]); // Evita que se rompa
+    }
+  };
 
-    fetchSubscribers();
-  }, []);
-
+  fetchSubscribers();
+}, []);
   // Manejar cambios en el formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
