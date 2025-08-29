@@ -15,8 +15,8 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',
-      'https://blogcba.netlify.app',
-      'https://cbablog.netlify.app'
+      'https://blogcba.netlify.app',     // ✅ Sin espacios
+      'https://cbablog.netlify.app'      // ✅ Sin espacios
     ],
     credentials: true,
   })
