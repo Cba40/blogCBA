@@ -114,12 +114,18 @@ app.get('/api/articles', async (req, res) => {
 });
 
 app.get('/api/articles/:id', async (req, res) => {
+  console.log('🔍 Buscando artículo con id:', req.params.id); // ← Para ver qué ID está buscando
   try {
     const result = await client.query('SELECT * FROM articles WHERE id = $1', [req.params.id]);
-    if (result.rows.length === 0) return res.status(404).json({ message: 'No encontrado' });
+    if (result.rows.length === 0) {
+      console.log('❌ Artículo NO encontrado con ese id');
+      return res.status(404).json({ message: 'No encontrado' });
+    }
     const article = result.rows[0];
+    console.log('✅ Artículo encontrado:', article.title);
     res.json({ ...article, featured: article.featured });
   } catch (error) {
+    console.error('❌ Error al obtener artículo:', error);
     res.status(500).json({ message: 'Error al obtener artículo' });
   }
 });
@@ -185,7 +191,7 @@ app.post('/api/newsletter', async (req, res) => {
     const featuredResult = await client.query(`
       SELECT * FROM articles 
       WHERE featured = true 
-      ORDER BY id DESC 
+      ORDER BY date DESC 
       LIMIT 1
     `);
     const featuredArticle = featuredResult.rows[0];
@@ -224,7 +230,7 @@ app.post('/api/newsletter', async (req, res) => {
           <div class="content">${content.replace(/\n/g, '<br>')}${featuredArticle ? `
             <div class="featured">
               <h2>${featuredArticle.title}</h2>
-              <img src="${process.env.DOMAIN}${featuredArticle.image}" alt="${featuredArticle.title}">
+              <img src="https://blogcba.netlify.app${featuredArticle.image}" alt="${featuredArticle.title}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;" />
               <p><strong>${featuredArticle.excerpt}</strong></p>
               <a href="${process.env.DOMAIN}/article/${featuredArticle.id}" class="btn">Leer más</a>
             </div>` : ''}</div>
@@ -246,6 +252,58 @@ app.post('/api/newsletter', async (req, res) => {
   } catch (error) {
     console.error('Error al enviar newsletter:', error);
     res.status(500).json({ message: '❌ Error al enviar emails' });
+  }
+});
+
+// Ruta para darse de baja con token
+app.get('/api/unsubscribe', async (req, res) => {
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).send(`
+      <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+        <h2>❌ Token no proporcionado</h2>
+        <p>Falta el token de desuscripción.</p>
+        <a href="https://blogcba.netlify.app" style="color: #009688;">Volver al blog</a>
+      </div>
+    `);
+  }
+
+  try {
+    // Busca el suscriptor por su id (token)
+    const result = await client.query('SELECT email FROM subscribers WHERE id = $1', [token]);
+    if (result.rows.length === 0) {
+      return res.status(404).send(`
+        <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+          <h2>❌ No encontrado</h2>
+          <p>Ya te diste de baja o el enlace no es válido.</p>
+          <a href="https://blogcba.netlify.app" style="color: #009688;">Volver al blog</a>
+        </div>
+      `);
+    }
+
+    const email = result.rows[0].email;
+
+    // Elimina al suscriptor
+    await client.query('DELETE FROM subscribers WHERE id = $1', [token]);
+
+    // Respuesta exitosa
+    res.send(`
+      <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+        <h2>✅ Te has dado de baja con éxito</h2>
+        <p><strong>${email}</strong></p>
+        <p>Ya no recibirás más newsletters de CBA Blog.</p>
+        <a href="https://blogcba.netlify.app" style="color: #009688;">Volver al blog</a>
+      </div>
+    `);
+  } catch (error) {
+    console.error('Error al darse de baja:', error);
+    res.status(500).send(`
+      <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
+        <h2>❌ Error técnico</h2>
+        <p>Intenta más tarde.</p>
+        <a href="https://blogcba.netlify.app" style="color: #009688;">Volver al blog</a>
+      </div>
+    `);
   }
 });
 

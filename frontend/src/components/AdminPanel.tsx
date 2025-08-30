@@ -530,12 +530,19 @@ const AdminPanel = () => {
                       }}
                     >
                       <p>
-                        <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
-                          Darse de baja
-                        </a>{' '}
-                        |{' '}
-                        <a href="#" style={{ color: '#009688', textDecoration: 'none' }}>
+                        <a href="http://cbacuatropuntocero.com.ar/" style={{ color: '#009688', textDecoration: 'none' }}>
                           Visitar sitio web
+                        </a>
+                        {' | '}
+                        <a 
+                          href="https://blogcba.netlify.app/api/unsubscribe?token=123456789" 
+                          style={{ color: '#009688', textDecoration: 'none' }}
+                        >
+                          Darse de baja
+                        </a>
+                        {' | '}
+                        <a href="https://blogcba.netlify.app" style={{ color: '#009688', textDecoration: 'none' }}>
+                          Visitar el Blog
                         </a>
                       </p>
                       <p>&copy; {new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
