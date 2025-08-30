@@ -3,28 +3,25 @@ import { Client } from 'pg';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import path from 'path';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS
+// ⚠️ CORRECCIÓN: Sin espacios, y manejo de preflight OPTIONS
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://blogcba.netlify.app'],
+    origin: ['http://localhost:5173', 'https://blogcba.netlify.app'], // ✅ Sin espacios
     credentials: true,
   })
 );
 
-//app.use(express.json());
-//const __dirname = path.resolve();
-//app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Manejar preflight OPTIONS (importante para PUT/POST con credenciales)
+app.options('*', cors());
 
-//app.get('*', (req, res) => {
-  //res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-//});
+// Parsear JSON
+app.use(express.json());
 
 // Conexión a PostgreSQL
 let client;
@@ -34,8 +31,8 @@ const connectDB = async () => {
     client = new Client({
       connectionString: process.env.DATABASE_URL,
       ssl: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
     });
     await client.connect();
     console.log('✅ Conectado a PostgreSQL');
@@ -67,7 +64,7 @@ const connectDB = async () => {
     console.log('✅ Tablas listas');
   } catch (error) {
     console.error('❌ Error al conectar con PostgreSQL:', error);
-    setTimeout(connectDB, 5000); // Reintenta si falla
+    setTimeout(connectDB, 5000);
   }
 };
 

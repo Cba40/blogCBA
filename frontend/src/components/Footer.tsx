@@ -103,7 +103,7 @@ const Footer = () => {
                 {/* Archivo → Reemplazado por CBA 4.0 Web */}
                 <li>
                   <a
-                    href="https://cba4puntocero.com"
+                    href="http://cbacuatropuntocero.com.ar/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
