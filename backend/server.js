@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 // ⚠️ CORRECCIÓN: Sin espacios, y manejo de preflight OPTIONS
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://blogcba.netlify.app'], // ✅ Sin espacios
+    origin: ['http://localhost:5173', 'https://blogcba.netlify.app', 'https://cbacuatropuntocero.com.ar'], // ✅ Sin espacios
     credentials: true,
   })
 );
