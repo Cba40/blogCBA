@@ -93,7 +93,7 @@ const ArticlePage = () => {
 
           {/* Imagen */}
           <img
-            src={article.image}
+            src={article.image.replace('/imagenes/', '/blog/imagenes/')}
             alt={article.title}
             className="w-full h-64 object-cover rounded-xl mb-8"
           />

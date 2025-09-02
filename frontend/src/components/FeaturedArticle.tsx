@@ -114,7 +114,7 @@ const FeaturedArticle = ({ article }: FeaturedArticleProps) => {
         <div className="md:w-1/2">
           <div className="relative h-64 md:h-full">
             <img
-              src={article.image}
+              src={article.image.replace('/imagenes/', '/blog/imagenes/')}
               alt={article.title}
               className="w-full h-full object-cover"
             />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -66,41 +67,41 @@ const Footer = () => {
           </div>
 
           
-          {/* Enlaces Rápidos */}
+         {/* Enlaces Rápidos */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
               <ul className="space-y-2">
                 {/* Inicio */}
                 <li>
-                  <a
-                    href="/"
+                  <Link
+                    to="/blog"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
                   >
                     Inicio
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Últimas Noticias */}
                 <li>
-                  <a
-                    href="/"
+                  <Link
+                    to="/blog"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
                   >
                     Últimas Noticias
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Categorías */}
                 <li>
-                  <a
-                    href="/"
+                  <Link
+                    to="/blog"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
                   >
                     Categorías
-                  </a>
+                  </Link>
                 </li>
 
-                {/* Archivo → Reemplazado por CBA 4.0 Web */}
+                {/* CBA 4.0 Web (externo) */}
                 <li>
                   <a
                     href="http://cbacuatropuntocero.com.ar/"
@@ -114,23 +115,23 @@ const Footer = () => {
 
                 {/* Contacto */}
                 <li>
-                  <a
-                    href="/contacto"
+                  <Link
+                    to="/blog/contacto"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
                   >
                     Contacto
-                  </a>
+                  </Link>
                 </li>
-              
-            {/* Enlace discreto al login */}
-              <li>
-                <a 
-                  href="/admin-login" 
-                  className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
-                >
-                  Noticias
-                </a>
-              </li>
+
+                {/* Enlace discreto al login */}
+                <li>
+                  <Link 
+                    to="/blog/admin-login" 
+                    className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
+                  >
+                    Noticias
+                  </Link>
+                </li>
               </ul>
             </div>
                   {/* Contact Info */}
