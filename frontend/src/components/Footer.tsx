@@ -116,7 +116,7 @@ const Footer = () => {
                 {/* Contacto */}
                 <li>
                   <Link
-                    to="/blog/contacto"
+                    to="/contacto"
                     className="text-gray-300 hover:text-teal-400 transition-colors"
                   >
                     Contacto
@@ -126,7 +126,7 @@ const Footer = () => {
                 {/* Enlace discreto al login */}
                 <li>
                   <Link 
-                    to="/blog/admin-login" 
+                    to="/admin-login" 
                     className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
                   >
                     Noticias

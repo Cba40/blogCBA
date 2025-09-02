@@ -11,7 +11,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/blog">
       <div className="min-h-screen bg-gray-50">
         {/* Botón de WhatsApp siempre visible */}
         <WhatsAppButton />

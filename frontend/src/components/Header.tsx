@@ -10,7 +10,7 @@ const Header = () => {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/blog/buscar?q=${encodeURIComponent(searchQuery)}`);
+      navigate('/buscar', { state: { query: searchQuery } });
     }
   };
 
@@ -43,7 +43,7 @@ const Header = () => {
           {/* Logo */}
           <div 
             className="flex items-center space-x-3 cursor-pointer" 
-            onClick={() => navigate('/blog')}
+            onClick={() => navigate('/')}
           >
             <div className="bg-teal-600 p-1.5 rounded-full">
               <img
@@ -75,7 +75,7 @@ const Header = () => {
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex space-x-8">
             <Link
-              to="/blog"
+              to="/"
               className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
             >
               Inicio
@@ -89,13 +89,13 @@ const Header = () => {
               Cba 4.0 Web
             </a>
             <Link
-              to="/blog/contacto"
+              to="/contacto"
               className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
             >
               Contacto
             </Link>
             <Link
-              to="/blog/favoritos"
+              to="/favoritos"
               className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
             >
               Favoritos
@@ -130,7 +130,7 @@ const Header = () => {
               {/* Mobile Navigation */}
               <nav className="flex flex-col space-y-2">
                 <Link
-                  to="/blog"
+                  to="/"
                   className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   Inicio
@@ -144,13 +144,13 @@ const Header = () => {
                   Cba 4.0 Web
                 </a>
                 <Link
-                  to="/blog/contacto"
+                  to="/contacto"
                   className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   Contacto
                 </Link>
                 <Link
-                  to="/blog/favoritos"
+                  to="/favoritos"
                   className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   Favoritos
