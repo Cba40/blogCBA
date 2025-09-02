@@ -11,18 +11,18 @@ const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
               {/* Imagen del logo */}
-                <div className="bg-teal-600 p-2 rounded-lg">
-                  <img
-                    src="/blog/logo.webp"
-                    alt="Logo CBA Blog"
-                    className="h-8 w-8 object-cover rounded"
-                  />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">CBA 4.0 Blog News</h2>
-                  <p className="text-gray-400">Noticias Tecnológicas</p>
-                </div>
+              <div className="bg-teal-600 p-2 rounded-lg">
+                <img
+                  src="/blog/logo.webp"
+                  alt="Logo CBA Blog"
+                  className="h-8 w-8 object-cover rounded"
+                />
               </div>
+              <div>
+                <h2 className="text-2xl font-bold">CBA 4.0 Blog News</h2>
+                <p className="text-gray-400">Noticias Tecnológicas</p>
+              </div>
+            </div>
             <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
               Tu fuente confiable de noticias tecnológicas, tendencias de innovación y análisis
               profundos del mundo digital. Mantente informado con contenido de calidad.
@@ -61,81 +61,80 @@ const Footer = () => {
                 className="bg-gray-800 p-2 rounded-lg hover:bg-teal-600 transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                
               </a>
             </div>
           </div>
 
-          
-         {/* Enlaces Rápidos */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
-              <ul className="space-y-2">
-                {/* Inicio */}
-                <li>
-                  <Link
-                    to="/blog"
-                    className="text-gray-300 hover:text-teal-400 transition-colors"
-                  >
-                    Inicio
-                  </Link>
-                </li>
+          {/* Enlaces Rápidos */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
+            <ul className="space-y-2">
+              {/* Inicio */}
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-300 hover:text-teal-400 transition-colors"
+                >
+                  Inicio
+                </Link>
+              </li>
 
-                {/* Últimas Noticias */}
-                <li>
-                  <Link
-                    to="/blog"
-                    className="text-gray-300 hover:text-teal-400 transition-colors"
-                  >
-                    Últimas Noticias
-                  </Link>
-                </li>
+              {/* Últimas Noticias */}
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-300 hover:text-teal-400 transition-colors"
+                >
+                  Últimas Noticias
+                </Link>
+              </li>
 
-                {/* Categorías */}
-                <li>
-                  <Link
-                    to="/blog"
-                    className="text-gray-300 hover:text-teal-400 transition-colors"
-                  >
-                    Categorías
-                  </Link>
-                </li>
+              {/* Categorías */}
+              <li>
+                <Link
+                  to="/"
+                  className="text-gray-300 hover:text-teal-400 transition-colors"
+                >
+                  Categorías
+                </Link>
+              </li>
 
-                {/* CBA 4.0 Web (externo) */}
-                <li>
-                  <a
-                    href="http://cbacuatropuntocero.com.ar/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-300 hover:text-teal-400 transition-colors"
-                  >
-                    CBA 4.0 Web
-                  </a>
-                </li>
+              {/* CBA 4.0 Web (externo) */}
+              <li>
+                <a
+                  href="http://cbacuatropuntocero.com.ar/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-teal-400 transition-colors"
+                >
+                  CBA 4.0 Web
+                </a>
+              </li>
 
-                {/* Contacto */}
-                <li>
-                  <Link
-                    to="/contacto"
-                    className="text-gray-300 hover:text-teal-400 transition-colors"
-                  >
-                    Contacto
-                  </Link>
-                </li>
+              {/* Contacto */}
+              <li>
+                <Link
+                  to="/contacto"
+                  className="text-gray-300 hover:text-teal-400 transition-colors"
+                >
+                  Contacto
+                </Link>
+              </li>
 
-                {/* Enlace discreto al login */}
-                <li>
-                  <Link 
-                    to="/admin-login" 
-                    className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
-                  >
-                    Noticias
-                  </Link>
-                </li>
-              </ul>
-            </div>
-                  {/* Contact Info */}
-          <div id="contacto"> 
+              {/* Enlace discreto al login */}
+              <li>
+                <Link 
+                  to="/admin-login" 
+                  className="text-gray-900 hover:text-teal-400 text-sm transition-colors"
+                >
+                  Noticias
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div id="contacto">
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
