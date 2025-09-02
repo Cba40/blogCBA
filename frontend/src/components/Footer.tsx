@@ -12,7 +12,7 @@ const Footer = () => {
               {/* Imagen del logo */}
                 <div className="bg-teal-600 p-2 rounded-lg">
                   <img
-                    src="/logo.webp"
+                    src="/blog/logo.webp"
                     alt="Logo CBA Blog"
                     className="h-8 w-8 object-cover rounded"
                   />
