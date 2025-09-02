@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Search, Menu, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  // ✅ Tipo explícito para 'e'
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-     navigate(`/buscar?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/blog/buscar?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -44,8 +43,8 @@ const Header = () => {
           {/* Logo */}
           <div 
             className="flex items-center space-x-3 cursor-pointer" 
-            onClick={() => navigate('/')}
->
+            onClick={() => navigate('/blog')}
+          >
             <div className="bg-teal-600 p-1.5 rounded-full">
               <img
                 src="/blog/logo.webp"
@@ -75,9 +74,12 @@ const Header = () => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex space-x-8">
-            <a href="/" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+            <Link
+              to="/blog"
+              className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
+            >
               Inicio
-            </a>
+            </Link>
             <a
               href="http://cbacuatropuntocero.com.ar/"
               target="_blank"
@@ -86,14 +88,18 @@ const Header = () => {
             >
               Cba 4.0 Web
             </a>
-            <a href="/contacto" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+            <Link
+              to="/blog/contacto"
+              className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
+            >
               Contacto
-            </a>
-
-            <a href="/favoritos" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
+            </Link>
+            <Link
+              to="/blog/favoritos"
+              className="text-gray-700 hover:text-teal-600 font-medium transition-colors"
+            >
               Favoritos
-            </a>
-
+            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -121,35 +127,35 @@ const Header = () => {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </form>
 
-             {/* Mobile Navigation */}
-                <nav className="flex flex-col space-y-2">
-                  <a
-                    href="/"
-                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    Inicio
-                  </a>
-                  <a
-                    href="http://cbacuatropuntocero.com.ar/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    Cba 4.0 Web
-                  </a>
-                  <a
-                    href="/contacto"
-                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    Contacto
-                  </a>
-                  <a
-                    href="/favoritos"
-                    className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                  >
-                    Favoritos
-                  </a>
-                </nav>
+              {/* Mobile Navigation */}
+              <nav className="flex flex-col space-y-2">
+                <Link
+                  to="/blog"
+                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Inicio
+                </Link>
+                <a
+                  href="http://cbacuatropuntocero.com.ar/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cba 4.0 Web
+                </a>
+                <Link
+                  to="/blog/contacto"
+                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Contacto
+                </Link>
+                <Link
+                  to="/blog/favoritos"
+                  className="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Favoritos
+                </Link>
+              </nav>
             </div>
           </div>
         )}

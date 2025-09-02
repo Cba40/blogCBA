@@ -135,7 +135,7 @@ const Footer = () => {
               </ul>
             </div>
                   {/* Contact Info */}
-          <div id="contacto" className="scroll-mt-20"> {/* ← Solo cambia esta línea */}
+          <div id="contacto"> 
             <h3 className="text-lg font-semibold mb-4">Contacto</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
