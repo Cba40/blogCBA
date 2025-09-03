@@ -1,6 +1,18 @@
 RewriteEngine On
 RewriteBase /blog/
-RewriteRule ^index\.html$ - [L]
+
+# Si la solicitud es para /blog/imagenes/, no redirigir
+RewriteRule ^imagenes/ - [L,NC]
+
+# Si la solicitud es para /blog/assets/, no redirigir
+RewriteRule ^assets/ - [L,NC]
+
+# Si la solicitud es para /blog/favicon.ico, no redirigir
+RewriteRule ^favicon\.ico - [L,NC]
+
+# Si el archivo o carpeta existe, no redirigir
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /blog/index.html [L]
+
+# Redirigir todo lo demás a /blog/index.html
+RewriteRule ^(.*)$ /blog/index.html [L]

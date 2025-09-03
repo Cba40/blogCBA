@@ -27,25 +27,33 @@ const BlogSection = () => {
   }, [searchParams]);
 
   // Cargar artículos desde la API
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-        const data: Article[] = await res.json();
+useEffect(() => {
+  const fetchArticles = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
+      const data: Article[] = await res.json();
 
-        // Separar artículo destacado
-        const featuredArticle = data.find((a) => a.featured);
-        const regularArticles = data.filter((a) => !a.featured);
+      // ✅ Corregir rutas de imágenes en el frontend como respaldo
+      const fixedData = data.map(article => ({
+        ...article,
+        image: article.image.startsWith('/imagenes/')
+          ? `/blog${article.image}`
+          : article.image
+      }));
 
-        setFeatured(featuredArticle || null);
-        setArticles(regularArticles);
-      } catch (error) {
-        console.error('Error al cargar artículos desde la API', error);
-      }
-    };
+      // Separar artículo destacado
+      const featuredArticle = fixedData.find((a) => a.featured);
+      const regularArticles = fixedData.filter((a) => !a.featured);
 
-    fetchArticles();
-  }, []);
+      setFeatured(featuredArticle || null);
+      setArticles(regularArticles);
+    } catch (error) {
+      console.error('Error al cargar artículos desde la API', error);
+    }
+  };
+
+  fetchArticles();
+}, []);
 
   const articlesPerPage = 6;
 

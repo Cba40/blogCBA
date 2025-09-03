@@ -109,16 +109,11 @@ app.get('/api/subscribers', async (req, res) => {
   }
 });
 
+
 app.get('/api/articles', async (req, res) => {
   try {
     const result = await client.query('SELECT * FROM articles ORDER BY id DESC');
-    // ✅ Corregir rutas de imágenes para que funcionen en /blog
-    const articles = result.rows.map(a => ({
-      ...a,
-      featured: a.featured,
-      image: a.image.replace('/imagenes/', '/blog/imagenes/') // ✅ Corrección aquí
-    }));
-    res.json(articles);
+    res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener artículos' });
   }
@@ -133,21 +128,13 @@ app.get('/api/articles/:id', async (req, res) => {
       return res.status(404).json({ message: 'No encontrado' });
     }
     const article = result.rows[0];
-    // ✅ Corregir ruta de imagen
-    const articleFixed = {
-      ...article,
-      featured: article.featured,
-      image: article.image.replace('/imagenes/', '/blog/imagenes/')
-    };
     console.log('✅ Artículo encontrado:', article.title);
-    res.json(articleFixed);
+    res.json({ ...article, featured: article.featured });
   } catch (error) {
     console.error('❌ Error al obtener artículo:', error);
     res.status(500).json({ message: 'Error al obtener artículo' });
   }
 });
-
-// ... (el resto de las rutas POST, PUT, DELETE quedan igual)
 
 app.post('/api/newsletter', async (req, res) => {
   const { subject, content } = req.body;
@@ -174,47 +161,59 @@ app.post('/api/newsletter', async (req, res) => {
         pass: process.env.GMAIL_PASS,
       },
     });
-    const domain = 'http://cbacuatropuntocero.com.ar'; // ✅ Dominio de Don Web
+    const domain = 'https://cbacuatropuntocero.com.ar'; // ✅ Dominio de Don Web
     const htmlTemplate = `
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>${subject}</title>
-        <style>
-          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-          .header { background: #009688; color: white; padding: 30px; text-align: center; }
-          .header h1 { margin: 0; font-size: 28px; font-weight: 500; }
-          .content { padding: 30px; font-size: 16px; background: #fff; }
-          .content p { margin: 0 0 16px 0; color: #444; }
-          .featured { border-left: 4px solid #009688; margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; }
-          .featured h2 { margin: 0 0 10px 0; font-size: 20px; color: #009688; }
-          .featured img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
-          .btn { display: inline-block; padding: 10px 20px; margin: 15px 0; background: #009688; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; }
-          .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; background: #f9f9f9; border-top: 1px solid #eee; }
-          .footer a { color: #009688; text-decoration: none; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header"><h1>${subject}</h1></div>
-          <div class="content">${content.replace(/\n/g, '<br>')}${featuredArticle ? `
-            <div class="featured">
-              <h2>${featuredArticle.title}</h2>
-              <img src="${domain}/blog${featuredArticle.image}" alt="${featuredArticle.title}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;" />
-              <p><strong>${featuredArticle.excerpt}</strong></p>
-              <a href="${domain}/blog/article/${featuredArticle.id}" class="btn">Leer más</a>
-            </div>` : ''}</div>
-          <div class="footer">
-            <p><a href="${domain}/blog/unsubscribe?token=ID_DEL_SUSCRIPTOR">Darse de baja</a> | <a href="${domain}">Visitar sitio web</a> | <a href="${domain}/blog">Visitar el Blog</a></p>
-            <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          <title>${subject}</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            .header { background: #009688; color: white; padding: 30px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 500; }
+            .content { padding: 30px; font-size: 16px; background: #fff; }
+            .content p { margin: 0 0 16px 0; color: #444; }
+            .featured { border-left: 4px solid #009688; margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+            .featured h2 { margin: 0 0 10px 0; font-size: 20px; color: #009688; }
+            .featured img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+            .btn { display: inline-block; padding: 10px 20px; margin: 15px 0; background: #009688; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; background: #f9f9f9; border-top: 1px solid #eee; }
+            .footer a { color: #009688; text-decoration: none; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header"><h1>${subject}</h1></div>
+            <div class="content">${content.replace(/\n/g, '<br>')}${featuredArticle ? `
+              <div class="featured">
+                <h2>${featuredArticle.title}</h2>
+                <img src="${domain}${featuredArticle.image}" alt="${featuredArticle.title}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;" />
+                <p><strong>${featuredArticle.excerpt}</strong></p>
+                <a href="${domain}/blog/article/${featuredArticle.id}" class="btn">Leer más</a>
+              </div>` : ''}</div>
+            <div class="footer">
+              <p>
+                <a href="${domain}/api/unsubscribe?token=${sub.id}" style="color: #009688; text-decoration: none;">
+                  Darse de baja
+                </a>
+                | 
+                <a href="${domain}" style="color: #009688; text-decoration: none;">
+                  Visitar sitio web
+                </a>
+                | 
+                <a href="${domain}/blog" style="color: #009688; text-decoration: none;">
+                  Visitar el Blog
+                </a>
+              </p>
+              <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
+            </div>
           </div>
-        </div>
-      </body>
-      </html>
-    `;
+        </body>
+        </html>
+      `;
     await transporter.sendMail({
       from: `"CBA Blog" <${process.env.GMAIL_USER}>`,
       to: emails,
