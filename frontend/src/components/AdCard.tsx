@@ -1,14 +1,14 @@
-// src/components/AdCard.tsx
-import React from 'react';
+import React, { useState } from 'react';
 
 interface AdCardProps {
   title: string;
   description: string;
   buttonText: string;
   subject: string;
-  gradient: string; // Ej: "from-blue-50 to-teal-50"
+  gradient: string;
   icon?: React.ReactNode;
   onClick?: () => void;
+  customBody?: string; // Mensaje personalizado
 }
 
 const AdCard = ({
@@ -19,15 +19,41 @@ const AdCard = ({
   gradient,
   icon,
   onClick,
+  customBody,
 }: AdCardProps) => {
+  const [isClicked, setIsClicked] = useState(false);
+
   const handleClick = () => {
-    const body = encodeURIComponent(
-      'Hola,\n\nMe interesa obtener más información sobre este espacio publicitario.\n\nSaludos,'
-    );
+    setIsClicked(true);
+
+    // Mensaje predeterminado o personalizado
+    const defaultBody = `Hola,\n\nMe interesa obtener más información sobre este espacio publicitario:\n\n- ${title}\n\n¿Podrían contarme más?\n\nSaludos,`;
+    const body = customBody || defaultBody;
+
     const mailto = `mailto:cba4.0cordoba@gmail.com?subject=${encodeURIComponent(
       subject
-    )}&body=${body}`;
-    window.location.href = mailto;
+    )}&body=${encodeURIComponent(body)}`;
+
+    // Intentar abrir cliente de correo
+    const mailtoLink = document.createElement('a');
+    mailtoLink.href = mailto;
+    mailtoLink.target = '_blank';
+    mailtoLink.rel = 'noopener noreferrer';
+    mailtoLink.style.display = 'none';
+    document.body.appendChild(mailtoLink);
+    mailtoLink.click();
+    document.body.removeChild(mailtoLink);
+
+    // Si no se abre, abrir Gmail en web
+    setTimeout(() => {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=cba4.0cordoba@gmail.com&su=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+      window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    }, 1000);
+
+    // Resetear el estado después de 2 segundos
+    setTimeout(() => setIsClicked(false), 2000);
   };
 
   return (
@@ -43,9 +69,16 @@ const AdCard = ({
       <p className="text-sm text-gray-700 mb-4">{description}</p>
       <button
         onClick={onClick || handleClick}
-        className="w-full bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
+        disabled={isClicked}
+        className={`
+          w-full px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+          ${isClicked
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-teal-600 hover:bg-teal-700'
+          } text-white
+        `}
       >
-        {buttonText}
+        {isClicked ? 'Enviando...' : buttonText}
       </button>
     </div>
   );

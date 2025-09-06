@@ -9,7 +9,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ CORRECCIÓN: Sin espacios, y con dominio de Don Web
 app.use(
   cors({
     origin: [
@@ -77,6 +76,88 @@ connectDB();
 
 // 🔹 Rutas API
 
+// --- CRUD DE ARTÍCULOS ---
+
+// GET: Todos los artículos
+app.get('/api/articles', async (req, res) => {
+  try {
+    const result = await client.query('SELECT * FROM articles ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener artículos' });
+  }
+});
+
+// GET: Un artículo por ID
+app.get('/api/articles/:id', async (req, res) => {
+  console.log('🔍 Buscando artículo con id:', req.params.id);
+  try {
+    const result = await client.query('SELECT * FROM articles WHERE id = $1', [req.params.id]);
+    if (result.rows.length === 0) {
+      console.log('❌ Artículo NO encontrado con ese id');
+      return res.status(404).json({ message: 'No encontrado' });
+    }
+    const article = result.rows[0];
+    console.log('✅ Artículo encontrado:', article.title);
+    res.json({ ...article, featured: article.featured });
+  } catch (error) {
+    console.error('❌ Error al obtener artículo:', error);
+    res.status(500).json({ message: 'Error al obtener artículo' });
+  }
+});
+
+// POST: Crear un nuevo artículo
+app.post('/api/articles', async (req, res) => {
+  const { id, title, excerpt, content, author, date, readtime, category, image, featured } = req.body;
+  try {
+    await client.query(
+      `INSERT INTO articles (id, title, excerpt, content, author, date, readtime, category, image, featured) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [id, title, excerpt, content, author, date, readtime, category, image, featured]
+    );
+    res.status(201).json({ message: 'Artículo creado exitosamente' });
+  } catch (error) {
+    console.error('❌ Error al crear artículo:', error);
+    res.status(500).json({ message: 'Error al crear artículo' });
+  }
+});
+
+// PUT: Actualizar un artículo
+app.put('/api/articles/:id', async (req, res) => {
+  const { title, excerpt, content, author, date, readtime, category, image, featured } = req.body;
+  try {
+    const result = await client.query(
+      `UPDATE articles 
+       SET title = $1, excerpt = $2, content = $3, author = $4, date = $5, readtime = $6, category = $7, image = $8, featured = $9 
+       WHERE id = $10`,
+      [title, excerpt, content, author, date, readtime, category, image, featured, req.params.id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Artículo no encontrado' });
+    }
+    res.json({ message: 'Artículo actualizado exitosamente' });
+  } catch (error) {
+    console.error('❌ Error al actualizar artículo:', error);
+    res.status(500).json({ message: 'Error al actualizar artículo' });
+  }
+});
+
+// DELETE: Eliminar un artículo
+app.delete('/api/articles/:id', async (req, res) => {
+  try {
+    const result = await client.query('DELETE FROM articles WHERE id = $1', [req.params.id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Artículo no encontrado' });
+    }
+    res.json({ message: 'Artículo eliminado exitosamente' });
+  } catch (error) {
+    console.error('❌ Error al eliminar artículo:', error);
+    res.status(500).json({ message: 'Error al eliminar artículo' });
+  }
+});
+
+// --- OTRAS RUTAS ---
+
 // Ruta para contacto
 app.post('/api/contact', async (req, res) => {
   const { subject, content } = req.body;
@@ -140,44 +221,21 @@ app.get('/api/subscribers', async (req, res) => {
   }
 });
 
-
-app.get('/api/articles', async (req, res) => {
-  try {
-    const result = await client.query('SELECT * FROM articles ORDER BY id DESC');
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener artículos' });
-  }
-});
-
-app.get('/api/articles/:id', async (req, res) => {
-  console.log('🔍 Buscando artículo con id:', req.params.id);
-  try {
-    const result = await client.query('SELECT * FROM articles WHERE id = $1', [req.params.id]);
-    if (result.rows.length === 0) {
-      console.log('❌ Artículo NO encontrado con ese id');
-      return res.status(404).json({ message: 'No encontrado' });
-    }
-    const article = result.rows[0];
-    console.log('✅ Artículo encontrado:', article.title);
-    res.json({ ...article, featured: article.featured });
-  } catch (error) {
-    console.error('❌ Error al obtener artículo:', error);
-    res.status(500).json({ message: 'Error al obtener artículo' });
-  }
-});
-
+// Newsletter
 app.post('/api/newsletter', async (req, res) => {
   const { subject, content } = req.body;
   if (!subject || !content) {
     return res.status(400).json({ message: 'Faltan asunto o contenido' });
   }
   try {
-    const subscribers = await client.query('SELECT email FROM subscribers');
-    const emails = subscribers.rows.map(s => s.email);
-    if (emails.length === 0) {
+    // Obtener suscriptores con su ID (para el token de baja)
+    const subscribers = await client.query('SELECT id, email FROM subscribers');
+    const subscriberList = subscribers.rows;
+    if (subscriberList.length === 0) {
       return res.status(200).json({ message: 'No hay suscriptores' });
     }
+
+    // Obtener artículo destacado
     const featuredResult = await client.query(`
       SELECT * FROM articles 
       WHERE featured = true 
@@ -185,15 +243,21 @@ app.post('/api/newsletter', async (req, res) => {
       LIMIT 1
     `);
     const featuredArticle = featuredResult.rows[0];
+
+    // Configurar transporte de correo
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
+        pass: process.env.GMAIL_PASS, 
       },
     });
-    const domain = 'https://cbacuatropuntocero.com.ar'; // ✅ Dominio de Don Web
-    const htmlTemplate = `
+
+    const domain = 'https://cbacuatropuntocero.com.ar'; // ✅ Sin espacios
+
+    // Enviar un correo por cada suscriptor (con token personalizado)
+    for (const subscriber of subscriberList) {
+      const htmlTemplate = `
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -227,7 +291,7 @@ app.post('/api/newsletter', async (req, res) => {
               </div>` : ''}</div>
             <div class="footer">
               <p>
-                <a href="${domain}/api/unsubscribe?token=${sub.id}" style="color: #009688; text-decoration: none;">
+                <a href="${domain}/api/unsubscribe?token=${subscriber.id}" style="color: #009688; text-decoration: none;">
                   Darse de baja
                 </a>
                 | 
@@ -245,20 +309,24 @@ app.post('/api/newsletter', async (req, res) => {
         </body>
         </html>
       `;
-    await transporter.sendMail({
-      from: `"CBA Blog" <${process.env.GMAIL_USER}>`,
-      to: emails,
-      subject,
-      html: htmlTemplate,
-    });
-    res.json({ message: `✅ Newsletter enviado a ${emails.length} suscriptor(es)` });
+
+      // Enviar correo individual
+      await transporter.sendMail({
+        from: `"CBA Blog" <${process.env.GMAIL_USER}>`,
+        to: subscriber.email,
+        subject,
+        html: htmlTemplate,
+      });
+    }
+
+    res.json({ message: `✅ Newsletter enviado a ${subscriberList.length} suscriptor(es)` });
   } catch (error) {
     console.error('Error al enviar newsletter:', error);
     res.status(500).json({ message: '❌ Error al enviar emails' });
   }
 });
 
-// Ruta para darse de baja con token
+// Ruta para darse de baja
 app.get('/api/unsubscribe', async (req, res) => {
   const { token } = req.query;
   if (!token) {
@@ -266,7 +334,7 @@ app.get('/api/unsubscribe', async (req, res) => {
       <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
         <h2>❌ Token no proporcionado</h2>
         <p>Falta el token de desuscripción.</p>
-        <a href="http://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
+        <a href="https://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
       </div>
     `);
   }
@@ -278,7 +346,7 @@ app.get('/api/unsubscribe', async (req, res) => {
         <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
           <h2>❌ No encontrado</h2>
           <p>Ya te diste de baja o el enlace no es válido.</p>
-          <a href="http://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
+          <a href="https://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
         </div>
       `);
     }
@@ -291,7 +359,7 @@ app.get('/api/unsubscribe', async (req, res) => {
         <h2>✅ Te has dado de baja con éxito</h2>
         <p><strong>${email}</strong></p>
         <p>Ya no recibirás más newsletters de CBA Blog.</p>
-        <a href="http://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
+        <a href="https://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
       </div>
     `);
   } catch (error) {
@@ -300,7 +368,7 @@ app.get('/api/unsubscribe', async (req, res) => {
       <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
         <h2>❌ Error técnico</h2>
         <p>Intenta más tarde.</p>
-        <a href="http://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
+        <a href="https://cbacuatropuntocero.com.ar/blog" style="color: #009688;">Volver al blog</a>
       </div>
     `);
   }

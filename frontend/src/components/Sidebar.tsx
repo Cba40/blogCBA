@@ -1,9 +1,54 @@
-// src/components/Sidebar.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, TrendingUp } from 'lucide-react';
 import AdCard from './AdCard';
 
 const Sidebar = () => {
+  const [isTopButtonClicked, setIsTopButtonClicked] = useState(false);
+  const [isBottomButtonClicked, setIsBottomButtonClicked] = useState(false);
+
+  const handleTopContact = () => {
+    setIsTopButtonClicked(true);
+    const subject = 'Consulta de Publicidad';
+    const body = `Hola,\n\nMe interesa obtener más información sobre los espacios publicitarios en CBA Blog.\n\nSaludos,`;
+
+    openEmailClient(subject, body);
+    setTimeout(() => setIsTopButtonClicked(false), 2000);
+  };
+
+  const handleBottomContact = () => {
+    setIsBottomButtonClicked(true);
+    const subject = 'Propuesta de Colaboración Publicitaria';
+    const body = `Hola,\n\nMe interesa colaborar con CBA Blog como anunciante o patrocinador.\n\n¿Podrían contarme más sobre las opciones disponibles?\n\nSaludos,`;
+
+    openEmailClient(subject, body);
+    setTimeout(() => setIsBottomButtonClicked(false), 2000);
+  };
+
+  // Función reutilizable para abrir correo
+  const openEmailClient = (subject: string, body: string) => {
+    const mailto = `mailto:cba4.0cordoba@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    // Intentar con mailto
+    const link = document.createElement('a');
+    link.href = mailto;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Fallback: abrir Gmail en web
+    setTimeout(() => {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=cba4.0cordoba@gmail.com&su=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+      window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    }, 1000);
+  };
+
   return (
     <aside className="space-y-6">
       {/* Top Banner Ad */}
@@ -11,13 +56,11 @@ const Sidebar = () => {
         <p className="text-sm text-gray-700">
           📢 <strong>Espacio Publicitario Premium</strong> - Tu empresa puede estar aquí.{' '}
           <button
-            onClick={() => {
-              const mailto = 'mailto:cba4.0cordoba@gmail.com?subject=Consulta de Publicidad&body=Hola,%0Ame%20interesa%20más%20información%20sobre%20los%20espacios%20publicitarios%20en%20CBA%20Blog.';
-              window.location.href = mailto;
-            }}
+            onClick={handleTopContact}
+            disabled={isTopButtonClicked}
             className="text-teal-600 font-medium hover:underline cursor-pointer bg-transparent border-none p-0"
           >
-            Contáctanos
+            {isTopButtonClicked ? 'Enviando...' : 'Contáctanos'}
           </button>
         </p>
       </div>
@@ -30,6 +73,7 @@ const Sidebar = () => {
         subject="Quiero Contratar Espacio Premium en CBA Blog"
         gradient="from-purple-50 to-pink-50"
         icon={<span className="text-purple-600 font-bold text-lg">AD</span>}
+        customBody="Hola,\n\nEstoy interesado en el Espacio Premium del blog. ¿Cuáles son los beneficios y precios?\n\nSaludos,"
       />
 
       {/* Ad Space 2 - Middle Tier */}
@@ -40,9 +84,11 @@ const Sidebar = () => {
         subject="Interés en Publicidad en CBA Blog"
         gradient="from-blue-50 to-teal-50"
         icon={<TrendingUp className="w-12 h-12 text-teal-600" />}
+        customBody="Hola,\n\nQuiero impulsar mi empresa a través de su blog. ¿Qué opciones de publicidad ofrecen?\n\nSaludos,"
       />
 
-     <form
+      {/* Formulario de Suscripción */}
+      <form
         onSubmit={async (e) => {
           e.preventDefault();
           const email = new FormData(e.currentTarget).get('email') as string;
@@ -50,12 +96,9 @@ const Sidebar = () => {
           try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email }),
             });
-
             const data = await res.json();
             alert(data.message);
             e.currentTarget.reset();
@@ -75,7 +118,6 @@ const Sidebar = () => {
           required
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
         />
-        
         <button
           type="submit"
           className="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition-colors text-sm font-medium"
@@ -89,14 +131,11 @@ const Sidebar = () => {
         <p className="text-sm text-gray-700">
           🌟 <strong>¿Querés destacar tu marca?</strong>{' '}
           <button
-            onClick={() => {
-              const mailto =
-                'mailto:cba4.0cordoba@gmail.com?subject=Propuesta de Colaboración Publicitaria&body=Hola,%0Ame%20interesa%20colaborar%20con%20CBA%20Blog%20como%20anunciante%20o%20patrocinador.';
-              window.location.href = mailto;
-            }}
+            onClick={handleBottomContact}
+            disabled={isBottomButtonClicked}
             className="text-teal-600 font-medium hover:underline cursor-pointer bg-transparent border-none p-0"
           >
-            Hablá con nosotros
+            {isBottomButtonClicked ? 'Enviando...' : 'Hablá con nosotros'}
           </button>
         </p>
       </div>

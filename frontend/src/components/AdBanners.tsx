@@ -1,8 +1,40 @@
-// src/components/AdBanners.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import AdCard from './AdCard';
 
 const AdBanners = () => {
+  const [isMainButtonClicked, setIsMainButtonClicked] = useState(false);
+
+  const handleMainClick = () => {
+    setIsMainButtonClicked(true);
+
+    const body = `Hola,\n\nMe interesa anunciar en CBA Blog. Por favor, envíenme información sobre paquetes y precios.\n\nSaludos,`;
+
+    const mailto = `mailto:cba4.0cordoba@gmail.com?subject=${encodeURIComponent(
+      'Quiero Anunciar en CBA Blog'
+    )}&body=${encodeURIComponent(body)}`;
+
+    // Intentar abrir cliente de correo
+    const mailtoLink = document.createElement('a');
+    mailtoLink.href = mailto;
+    mailtoLink.target = '_blank';
+    mailtoLink.rel = 'noopener noreferrer';
+    mailtoLink.style.display = 'none';
+    document.body.appendChild(mailtoLink);
+    mailtoLink.click();
+    document.body.removeChild(mailtoLink);
+
+    // Fallback: abrir Gmail en web
+    setTimeout(() => {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=cba4.0cordoba@gmail.com&su=${encodeURIComponent(
+        'Quiero Anunciar en CBA Blog'
+      )}&body=${encodeURIComponent(body)}`;
+      window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    }, 1000);
+
+    // Resetear estado
+    setTimeout(() => setIsMainButtonClicked(false), 2000);
+  };
+
   return (
     <>
       {/* Bottom Ad Banner */}
@@ -12,14 +44,17 @@ const AdBanners = () => {
           Llega a miles de profesionales tech y empresarios innovadores
         </p>
         <button
-          onClick={() => {
-            const mailto =
-              'mailto:cba4.0cordoba@gmail.com?subject=Quiero Anunciar en CBA Blog&body=Hola,%0Ame%20interesa%20anunciar%20en%20CBA%20Blog.%20Por%20favor,%20envíenme%20información%20sobre%20paquetes%20y%20precios.';
-            window.location.href = mailto;
-          }}
-          className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors font-medium inline-block cursor-pointer"
+          onClick={handleMainClick}
+          disabled={isMainButtonClicked}
+          className={`
+            px-6 py-3 rounded-lg font-medium inline-block cursor-pointer transition-all duration-200
+            ${isMainButtonClicked
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-teal-600 hover:bg-teal-700 text-white'
+            }
+          `}
         >
-          Anunciar Aquí
+          {isMainButtonClicked ? 'Enviando...' : 'Anunciar Aquí'}
         </button>
       </div>
 
@@ -33,6 +68,7 @@ const AdBanners = () => {
           subject="Interés en Banner para Startups"
           gradient="from-purple-100 to-pink-100"
           icon={<span className="text-purple-600 text-2xl">🚀</span>}
+          customBody="Hola,\n\nSoy el fundador de una startup tecnológica y me interesa promocionar mi proyecto en CBA Blog.\n\n¿Cuáles son los planes de publicidad disponibles?\n\nSaludos,"
         />
 
         {/* Banner 2: Empleos Tech */}
@@ -43,6 +79,7 @@ const AdBanners = () => {
           subject="Publicar Empleo Tecnológico"
           gradient="from-yellow-100 to-orange-100"
           icon={<span className="text-orange-600 text-2xl">💼</span>}
+          customBody="Hola,\n\nEstoy buscando talento tecnológico y quiero publicar una oferta laboral en CBA Blog.\n\nPor favor, envíenme información sobre cómo hacerlo.\n\nSaludos,"
         />
       </div>
     </>

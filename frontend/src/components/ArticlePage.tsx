@@ -92,10 +92,13 @@ const ArticlePage = () => {
           </div>
 
           {/* Imagen */}
-          <img src={article.image} 
-            alt={article.title} 
-            className="w-full h-48 object-cover" 
-          />
+          <img 
+          src={article.image.startsWith('/blog/imagenes/') 
+            ? article.image 
+            : article.image.replace('/imagenes/', '/blog/imagenes/')} 
+          alt={article.title} 
+          className="w-full h-48 object-cover" 
+        />
 
           {/* Contenido */}
           <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
