@@ -1,5 +1,5 @@
 // src/components/ContactPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
 
@@ -12,6 +12,11 @@ const ContactPage = () => {
     mensaje: '',
   });
 
+  // ✅ Forzar scroll al inicio cuando carga la página
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -22,45 +27,24 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Datos del formulario
-    const subject = `Consulta de Contacto: ${formData.nombre} ${formData.apellido}`;
-    const body = `
-      📝 **Formulario de Contacto**
+    const { nombre, apellido, email, tipoEmpresa, mensaje } = formData;
 
-      **Nombre:** ${formData.nombre}
-      **Apellido:** ${formData.apellido}
-      **Email:** ${formData.email}
-      **Tipo de Empresa:** ${formData.tipoEmpresa}
-
+    const subject = `Contacto: ${nombre} ${apellido} - ${tipoEmpresa}`;
+    const content = `
+      **Nombre:** ${nombre} ${apellido}
+      **Email:** ${email}
+      **Empresa:** ${tipoEmpresa}
       **Mensaje:**
-      ${formData.mensaje}
+      ${mensaje}
     `;
 
-    // Enviar correo usando un backend o servicio (ej: EmailJS, Formspree, etc.)
-    // Como no tenés backend, usamos un servicio gratuito como EmailJS
-
-    const serviceID = 'YOUR_SERVICE_ID';      // ← Reemplazar
-    const templateID = 'YOUR_TEMPLATE_ID';    // ← Reemplazar
-    const publicKey = 'YOUR_PUBLIC_KEY';      // ← Reemplazar
-
     try {
-      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          service_id: serviceID,
-          template_id: templateID,
-          user_id: publicKey,
-          template_params: {
-            from_name: `${formData.nombre} ${formData.apellido}`,
-            from_email: formData.email,
-            to_email: 'cba4.0cordoba@gmail.com',
-            subject,
-            message: body,
-          },
-        }),
+        body: JSON.stringify({ subject, content }),
       });
 
       if (response.ok) {
@@ -76,11 +60,11 @@ const ContactPage = () => {
         throw new Error('Error al enviar');
       }
     } catch (error) {
-      console.error('Error:', error);
-      // Fallback: abrir Gmail con los datos
+      console.error('Error al enviar el mensaje:', error);
+      // Fallback: abrir Gmail
       const mailto = `mailto:cba4.0cordoba@gmail.com?subject=${encodeURIComponent(
         subject
-      )}&body=${encodeURIComponent(body)}`;
+      )}&body=${encodeURIComponent(content)}`;
       window.location.href = mailto;
       alert('📧 No se pudo enviar. Abriendo cliente de correo...');
     }

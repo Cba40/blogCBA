@@ -92,10 +92,9 @@ const ArticlePage = () => {
           </div>
 
           {/* Imagen */}
-          <img
-            src={article.image.replace('/imagenes/', '/blog/imagenes/')}
-            alt={article.title}
-            className="w-full h-64 object-cover rounded-xl mb-8"
+          <img src={article.image} 
+            alt={article.title} 
+            className="w-full h-48 object-cover" 
           />
 
           {/* Contenido */}

@@ -77,6 +77,37 @@ connectDB();
 
 // 🔹 Rutas API
 
+// Ruta para contacto
+app.post('/api/contact', async (req, res) => {
+  const { subject, content } = req.body;
+  if (!subject || !content) {
+    return res.status(400).json({ message: 'Faltan datos' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Formulario de Contacto" <${process.env.GMAIL_USER}>`,
+      to: 'cba4.0cordoba@gmail.com',
+      subject,
+      text: content,
+      html: `<pre>${content}</pre>`,
+    });
+
+    res.json({ message: '✅ Mensaje enviado' });
+  } catch (error) {
+    console.error('Error al enviar contacto:', error);
+    res.status(500).json({ message: '❌ Error al enviar' });
+  }
+});
+
 // Suscribirse
 app.post('/api/subscribers', async (req, res) => {
   const { email } = req.body;
