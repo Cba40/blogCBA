@@ -85,7 +85,7 @@ const Footer = () => {
                   to="/"
                   className="text-gray-300 hover:text-teal-400 transition-colors"
                 >
-                  Últimas Noticias
+                  Todas las noticias
                 </Link>
               </li>
 
@@ -95,7 +95,7 @@ const Footer = () => {
                   to="/"
                   className="text-gray-300 hover:text-teal-400 transition-colors"
                 >
-                  Categorías
+                  Filtrar por categoría
                 </Link>
               </li>
 
