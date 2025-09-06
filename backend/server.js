@@ -50,7 +50,7 @@ const connectDB = async () => {
         content TEXT NOT NULL,
         author TEXT NOT NULL,
         date TEXT NOT NULL,
-        readtime INTEGER NOT NULL,
+        readTime INTEGER NOT NULL,
         category TEXT NOT NULL,
         image TEXT NOT NULL,
         featured BOOLEAN DEFAULT false
@@ -108,12 +108,12 @@ app.get('/api/articles/:id', async (req, res) => {
 
 // POST: Crear un nuevo artículo
 app.post('/api/articles', async (req, res) => {
-  const { id, title, excerpt, content, author, date, readtime, category, image, featured } = req.body;
+  const { id, title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
   try {
     await client.query(
-      `INSERT INTO articles (id, title, excerpt, content, author, date, readtime, category, image, featured) 
+      `INSERT INTO articles (id, title, excerpt, content, author, date, readTime, category, image, featured) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [id, title, excerpt, content, author, date, readtime, category, image, featured]
+      [id, title, excerpt, content, author, date, readTime, category, image, featured]
     );
     res.status(201).json({ message: 'Artículo creado exitosamente' });
   } catch (error) {
@@ -124,13 +124,13 @@ app.post('/api/articles', async (req, res) => {
 
 // PUT: Actualizar un artículo
 app.put('/api/articles/:id', async (req, res) => {
-  const { title, excerpt, content, author, date, readtime, category, image, featured } = req.body;
+  const { title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
   try {
     const result = await client.query(
       `UPDATE articles 
-       SET title = $1, excerpt = $2, content = $3, author = $4, date = $5, readtime = $6, category = $7, image = $8, featured = $9 
+       SET title = $1, excerpt = $2, content = $3, author = $4, date = $5, readTime = $6, category = $7, image = $8, featured = $9 
        WHERE id = $10`,
-      [title, excerpt, content, author, date, readtime, category, image, featured, req.params.id]
+      [title, excerpt, content, author, date, readTime, category, image, featured, req.params.id]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Artículo no encontrado' });
