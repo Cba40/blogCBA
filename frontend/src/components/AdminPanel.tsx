@@ -44,54 +44,69 @@ const AdminPanel = () => {
   const [message, setMessage] = useState('');
   const [preview, setPreview] = useState<{ subject: string; content: string } | null>(null);
 
-  // Cargar artículos
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-        const data = await res.json();
-        setArticles(data);
-      } catch (err) {
-        setMessage('❌ Error al cargar artículos');
+  // ✅ Función para recargar artículos desde el servidor
+  const fetchArticles = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
-    };
+      const data = await res.json();
+      setArticles(data);
+    } catch (err) {
+      console.error('Error al cargar artículos:', err);
+      setMessage('❌ Error al cargar artículos');
+    }
+  };
 
+  // ✅ Cargar artículos al montar el componente
+  useEffect(() => {
     fetchArticles();
   }, []);
 
   // Cargar suscriptores
- useEffect(() => {
-  const fetchSubscribers = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+  useEffect(() => {
+    const fetchSubscribers = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        // Asegurarnos de que data es un array
+        if (Array.isArray(data)) {
+          setSubscribers(data);
+        } else {
+          console.error('La respuesta no es un array:', data);
+          setSubscribers([]);
+        }
+      } catch (err) {
+        console.error('Error al cargar suscriptores', err);
+        setSubscribers([]); // Evita que se rompa
       }
-      
-      const data = await res.json();
-      
-      // Asegurarnos de que data es un array
-      if (Array.isArray(data)) {
-        setSubscribers(data);
-      } else {
-        console.error('La respuesta no es un array:', data);
-        setSubscribers([]);
-      }
-    } catch (err) {
-      console.error('Error al cargar suscriptores', err);
-      setSubscribers([]); // Evita que se rompa
-    }
-  };
+    };
 
-  fetchSubscribers();
-}, []);
-  // Manejar cambios en el formulario
+    fetchSubscribers();
+  }, []);
+
+  // ✅ Manejar cambios en el formulario con validaciones
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    
+    let processedValue: any = value;
+    
+    if (type === 'checkbox') {
+      processedValue = (e.target as HTMLInputElement).checked;
+    } else if (name === 'readTime') {
+      processedValue = parseInt(value) || 1; // Asegurar que sea un número válido
+    }
+    
     setArticle({
       ...article,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]: processedValue,
     });
   };
 
@@ -117,14 +132,21 @@ const AdminPanel = () => {
     setMessage('');
   };
 
-  // Editar artículo
+  // ✅ Editar artículo con validaciones mejoradas
   const handleEdit = (art: Article) => {
-    setArticle(art);
+    setArticle({
+      ...art,
+      // ✅ Asegurar que todos los campos estén definidos
+      featured: art.featured || false,
+      readTime: art.readTime || 5,
+      category: art.category || 'ia',
+      author: art.author || 'CBA 4.0 Blog'
+    });
     setEditingId(art.id);
     setMessage('');
   };
 
-  // Eliminar artículo
+  // ✅ CORRECCIÓN PRINCIPAL: handleDelete mejorado
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Estás seguro de eliminar este artículo?')) return;
 
@@ -134,21 +156,42 @@ const AdminPanel = () => {
       });
 
       if (res.ok) {
-        setArticles(articles.filter(a => a.id !== id));
+        // ✅ CORRECCIÓN: Recargar artículos desde el servidor
+        await fetchArticles();
+        
         if (editingId === id) handleNew();
         setMessage('✅ Artículo eliminado');
+        
+        // ✅ Limpiar mensaje después de 3 segundos
+        setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('❌ Error al eliminar');
+        const errorData = await res.json();
+        setMessage(`❌ Error al eliminar: ${errorData.message}`);
       }
     } catch (err) {
+      console.error('Error al eliminar:', err);
       setMessage('❌ Error de conexión');
     }
   };
 
-  // Crear o actualizar artículo
+  // ✅ CORRECCIÓN PRINCIPAL: handleSubmit mejorado
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
+
+    // Validaciones básicas
+    if (!article.title.trim()) {
+      setMessage('❌ El título es obligatorio');
+      return;
+    }
+    if (!article.excerpt.trim()) {
+      setMessage('❌ El extracto es obligatorio');
+      return;
+    }
+    if (!article.content.trim()) {
+      setMessage('❌ El contenido es obligatorio');
+      return;
+    }
 
     try {
       const method = editingId ? 'PUT' : 'POST';
@@ -159,6 +202,9 @@ const AdminPanel = () => {
       const body = {
         ...article,
         id: editingId || Date.now().toString(),
+        // Asegurar valores por defecto
+        readTime: article.readTime || 5,
+        featured: article.featured || false,
       };
 
       const res = await fetch(url, {
@@ -168,20 +214,20 @@ const AdminPanel = () => {
       });
 
       if (res.ok) {
-        const saved = await res.json();
-        if (editingId) {
-          setArticles(articles.map(a => (a.id === editingId ? saved : a)));
-          setMessage('✅ Artículo actualizado');
-        } else {
-          setArticles([saved, ...articles]);
-          setMessage('✅ Artículo creado con éxito');
-        }
+        // ✅ CORRECCIÓN: Recargar artículos desde el servidor
+        await fetchArticles();
+        
+        setMessage(editingId ? '✅ Artículo actualizado' : '✅ Artículo creado con éxito');
         handleNew(); // Limpiar formulario
+        
+        // ✅ Limpiar mensaje después de 3 segundos
+        setTimeout(() => setMessage(''), 3000);
       } else {
         const error = await res.json();
         setMessage(`❌ Error: ${error.message}`);
       }
     } catch (err) {
+      console.error('Error en handleSubmit:', err);
       setMessage('❌ Error de conexión con el servidor');
     }
   };
@@ -189,6 +235,11 @@ const AdminPanel = () => {
   // Manejar envío de newsletter
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newsletter.subject.trim() || !newsletter.content.trim()) {
+      alert('Por favor completa el asunto y el contenido');
+      return;
+    }
+    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/newsletter`, {
         method: 'POST',
@@ -198,7 +249,9 @@ const AdminPanel = () => {
       const data = await res.json();
       alert(data.message);
       setNewsletter({ subject: '', content: '' });
+      setPreview(null); // Cerrar preview si está abierto
     } catch (err) {
+      console.error('Error al enviar newsletter:', err);
       alert('Error de conexión');
     }
   };
@@ -226,7 +279,7 @@ const AdminPanel = () => {
       {message && (
         <div
           className={`p-4 mb-6 rounded-lg text-white ${
-            message.includes('Error') ? 'bg-red-600' : 'bg-green-600'
+            message.includes('Error') || message.includes('❌') ? 'bg-red-600' : 'bg-green-600'
           }`}
         >
           {message}
@@ -359,34 +412,48 @@ const AdminPanel = () => {
         <div className="lg:col-span-2 space-y-8">
           {/* Lista de Artículos */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Artículos Existentes</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Artículos Existentes ({articles.length})
+            </h2>
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {articles.length > 0 ? (
                 articles.map((art) => (
                   <div
                     key={art.id}
-                    className={`p-4 border rounded-lg ${
-                      editingId === art.id ? 'border-teal-500 bg-teal-50' : 'border-gray-200'
+                    className={`p-4 border rounded-lg transition-all duration-200 ${
+                      editingId === art.id ? 'border-teal-500 bg-teal-50' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">{art.title}</h3>
-                        <p className="text-sm text-gray-600">{art.excerpt.substring(0, 60)}...</p>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {art.category} • {art.readTime} min • {art.date}
+                        <p className="text-sm text-gray-600">
+                          {art.excerpt ? `${art.excerpt.substring(0, 60)}...` : 'Sin extracto'}
+                        </p>
+                        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                          <span>{art.category}</span>
+                          <span>•</span>
+                          <span>{art.readTime} min</span>
+                          <span>•</span>
+                          <span>{art.date}</span>
+                          {art.featured && (
+                            <>
+                              <span>•</span>
+                              <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs">Destacado</span>
+                            </>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
                         <button
                           onClick={() => handleEdit(art)}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => handleDelete(art.id)}
-                          className="text-red-600 hover:text-red-800 text-sm"
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
                         >
                           Eliminar
                         </button>
@@ -395,14 +462,16 @@ const AdminPanel = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No hay artículos aún.</p>
+                <p className="text-gray-500 text-center py-4">No hay artículos aún.</p>
               )}
             </div>
           </div>
 
           {/* Lista de Suscriptores */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Suscriptores al Newsletter</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Suscriptores al Newsletter ({subscribers.length})
+            </h2>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {subscribers.length > 0 ? (
                 subscribers.map((sub, index) => (
@@ -414,7 +483,7 @@ const AdminPanel = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-sm">No hay suscriptores aún.</p>
+                <p className="text-gray-500 text-sm text-center py-4">No hay suscriptores aún.</p>
               )}
             </div>
             <p className="text-sm text-gray-600 mt-2">
@@ -535,13 +604,13 @@ const AdminPanel = () => {
                         </a>
                         {' | '}
                         <a 
-                          href="https://blogcba.netlify.app/api/unsubscribe?token=123456789" 
+                          href="https://blogcba-api.onrender.com/api/unsubscribe?token=123456789" 
                           style={{ color: '#009688', textDecoration: 'none' }}
                         >
                           Darse de baja
                         </a>
                         {' | '}
-                        <a href="https://blogcba.netlify.app" style={{ color: '#009688', textDecoration: 'none' }}>
+                        <a href="https://cbacuatropuntocero.com.ar/blog" style={{ color: '#009688', textDecoration: 'none' }}>
                           Visitar el Blog
                         </a>
                       </p>

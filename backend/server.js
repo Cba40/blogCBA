@@ -84,6 +84,7 @@ app.get('/api/articles', async (req, res) => {
     const result = await client.query('SELECT * FROM articles ORDER BY id DESC');
     res.json(result.rows);
   } catch (error) {
+    console.error('❌ Error al obtener artículos:', error);
     res.status(500).json({ message: 'Error al obtener artículos' });
   }
 });
@@ -99,7 +100,8 @@ app.get('/api/articles/:id', async (req, res) => {
     }
     const article = result.rows[0];
     console.log('✅ Artículo encontrado:', article.title);
-    res.json({ ...article, featured: article.featured });
+    // ✅ CORRECCIÓN: No duplicar featured
+    res.json(article);
   } catch (error) {
     console.error('❌ Error al obtener artículo:', error);
     res.status(500).json({ message: 'Error al obtener artículo' });
@@ -110,12 +112,31 @@ app.get('/api/articles/:id', async (req, res) => {
 app.post('/api/articles', async (req, res) => {
   const { id, title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
   try {
+    // Generar ID si no viene
+    const articleId = id || Date.now().toString();
+    
     await client.query(
       `INSERT INTO articles (id, title, excerpt, content, author, date, readTime, category, image, featured) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [id, title, excerpt, content, author, date, readTime, category, image, featured]
+      [articleId, title, excerpt, content, author, date, readTime, category, image, featured || false]
     );
-    res.status(201).json({ message: 'Artículo creado exitosamente' });
+    
+    // ✅ MEJORA: Devolver el artículo creado
+    const newArticle = {
+      id: articleId,
+      title,
+      excerpt,
+      content,
+      author,
+      date,
+      readTime,
+      category,
+      image,
+      featured: featured || false
+    };
+    
+    console.log('✅ Artículo creado:', newArticle.title);
+    res.status(201).json(newArticle);
   } catch (error) {
     console.error('❌ Error al crear artículo:', error);
     res.status(500).json({ message: 'Error al crear artículo' });
@@ -130,12 +151,28 @@ app.put('/api/articles/:id', async (req, res) => {
       `UPDATE articles 
        SET title = $1, excerpt = $2, content = $3, author = $4, date = $5, readTime = $6, category = $7, image = $8, featured = $9 
        WHERE id = $10`,
-      [title, excerpt, content, author, date, readTime, category, image, featured, req.params.id]
+      [title, excerpt, content, author, date, readTime, category, image, featured || false, req.params.id]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Artículo no encontrado' });
     }
-    res.json({ message: 'Artículo actualizado exitosamente' });
+    
+    // ✅ MEJORA: Devolver el artículo actualizado
+    const updatedArticle = {
+      id: req.params.id,
+      title,
+      excerpt,
+      content,
+      author,
+      date,
+      readTime,
+      category,
+      image,
+      featured: featured || false
+    };
+    
+    console.log('✅ Artículo actualizado:', updatedArticle.title);
+    res.json(updatedArticle);
   } catch (error) {
     console.error('❌ Error al actualizar artículo:', error);
     res.status(500).json({ message: 'Error al actualizar artículo' });
@@ -149,6 +186,7 @@ app.delete('/api/articles/:id', async (req, res) => {
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Artículo no encontrado' });
     }
+    console.log('✅ Artículo eliminado con id:', req.params.id);
     res.json({ message: 'Artículo eliminado exitosamente' });
   } catch (error) {
     console.error('❌ Error al eliminar artículo:', error);
@@ -166,7 +204,7 @@ app.post('/api/contact', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
@@ -217,6 +255,7 @@ app.get('/api/subscribers', async (req, res) => {
     const result = await client.query('SELECT email, createdat FROM subscribers ORDER BY createdat DESC');
     res.json(result.rows);
   } catch (error) {
+    console.error('❌ Error al obtener suscriptores:', error);
     res.status(500).json({ message: 'Error al obtener suscriptores' });
   }
 });
@@ -245,7 +284,7 @@ app.post('/api/newsletter', async (req, res) => {
     const featuredArticle = featuredResult.rows[0];
 
     // Configurar transporte de correo
-    const transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
@@ -253,7 +292,8 @@ app.post('/api/newsletter', async (req, res) => {
       },
     });
 
-    const domain = 'https://cbacuatropuntocero.com.ar'; // ✅ Sin espacios
+    const domain = 'https://cbacuatropuntocero.com.ar'; 
+    const apiDomain = 'https://blogcba-api.onrender.com'; 
 
     // Enviar un correo por cada suscriptor (con token personalizado)
     for (const subscriber of subscriberList) {
