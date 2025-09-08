@@ -33,7 +33,7 @@ useEffect(() => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
       const data: Article[] = await res.json();
 
-      // ✅ Corregir rutas de imágenes en el frontend como respaldo
+      
       const fixedData = data.map(article => ({
         ...article,
         image: article.image.startsWith('/imagenes/')
@@ -77,12 +77,39 @@ useEffect(() => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Encabezado */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Noticias Tecnológicas</h1>
-        <p className="text-xl text-gray-600">
-          Mantente al día con las últimas tendencias en tecnología e innovación
-        </p>
-      </div>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Noticias Tecnológicas</h1>
+          <p className="text-xl text-gray-600">
+            Mantente al día con las últimas tendencias en tecnología e innovación
+          </p>
+
+          {/* Input de búsqueda */}
+          <div className="mt-6">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const input = e.currentTarget.search;
+                if (input.value.trim()) {
+                  window.location.href = `/blog/buscar?q=${encodeURIComponent(input.value.trim())}`;
+                }
+              }}
+              className="flex max-w-md mx-auto"
+            >
+              <input
+                type="text"
+                name="search"
+                placeholder="Buscar artículos..."
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <button
+                type="submit"
+                className="bg-teal-600 text-white px-4 py-2 rounded-r-lg hover:bg-teal-700"
+              >
+                Buscar
+              </button>
+            </form>
+          </div>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">

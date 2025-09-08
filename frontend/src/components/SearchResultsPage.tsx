@@ -1,6 +1,6 @@
 // src/components/SearchResultsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams , useSearchParams } from 'react-router-dom'; // ✅ Mantenemos useSearchParams
+import { useParams , useSearchParams } from 'react-router-dom'; 
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
@@ -20,36 +20,37 @@ const SearchResultsPage = () => {
 
   // Cargar artículos desde la API
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-        const data: Article[] = await res.json();
+  const fetchArticles = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
+      const data: Article[] = await res.json();
 
-        // Filtrar por búsqueda
-        const filtered = data.filter(
-          (a) =>
-            a.title.toLowerCase().includes(query.toLowerCase()) ||
-            a.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-            a.content.toLowerCase().includes(query.toLowerCase()) ||
-            a.author.toLowerCase().includes(query.toLowerCase())
-        );
+      // Filtrar por búsqueda
+      const filtered = data.filter(
+        (a) =>
+          a.title.toLowerCase().includes(query.toLowerCase()) ||
+          a.excerpt.toLowerCase().includes(query.toLowerCase()) ||
+          a.content.toLowerCase().includes(query.toLowerCase()) ||
+          a.author.toLowerCase().includes(query.toLowerCase())
+      );
 
-        setArticles(filtered);
-      } catch (error) {
-        console.error('Error al cargar artículos', error);
-        setArticles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (query) {
-      fetchArticles();
-    } else {
+      setArticles(filtered);
+    } catch (error) {
+      console.error('Error al cargar artículos', error);
       setArticles([]);
+    } finally {
       setLoading(false);
     }
-  }, [query]);
+  };
+
+  if (query.trim()) {
+    setLoading(true);
+    fetchArticles();
+  } else {
+    setArticles([]);
+    setLoading(false);
+  }
+}, [query]);
 
   const articlesPerPage = 6;
   const totalPages = Math.ceil(articles.length / articlesPerPage);
@@ -63,7 +64,7 @@ const SearchResultsPage = () => {
       {/* Botón Volver al Inicio */}
       <div className="mb-6">
         <button
-          onClick={() => window.history.back()} // ✅ Usamos el navegador nativo
+          onClick={() => window.history.back()} 
           className="text-teal-600 hover:text-teal-800 font-medium flex items-center gap-2"
         >
           ← Volver al inicio
