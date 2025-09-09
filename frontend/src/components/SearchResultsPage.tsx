@@ -1,6 +1,6 @@
 // src/components/SearchResultsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams , useSearchParams } from 'react-router-dom'; 
+import { useParams , useSearchParams, useNavigate } from 'react-router-dom'; 
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
@@ -13,6 +13,8 @@ const SearchResultsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -61,7 +63,7 @@ const SearchResultsPage = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Botón Volver al Inicio */}
+       {/* Botón Volver al Inicio */}
       <div className="mb-6">
         <button
           onClick={() => window.history.back()} 
@@ -70,8 +72,8 @@ const SearchResultsPage = () => {
           ← Volver al inicio
         </button>
       </div>
-
-      {/* Título */}
+       
+       {/* Título */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
           Resultados para: <span className="text-teal-600">"{query}"</span>

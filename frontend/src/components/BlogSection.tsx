@@ -1,5 +1,5 @@
 import React, {useState, useEffect } from 'react';
-import {useParams, useSearchParams } from 'react-router-dom';
+import {useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import FeaturedArticle from './FeaturedArticle';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
@@ -14,6 +14,8 @@ const BlogSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
   const [featured, setFeatured] = useState<Article | null>(null);
+  const navigate = useNavigate();
+  
 
   // Scroll al cambiar de página
    useEffect(() => {
@@ -46,7 +48,7 @@ useEffect(() => {
       const regularArticles = fixedData.filter((a) => !a.featured);
 
       setFeatured(featuredArticle || null);
-      setArticles(regularArticles);
+      setArticles(fixedData);
     } catch (error) {
       console.error('Error al cargar artículos desde la API', error);
     }
@@ -81,34 +83,7 @@ useEffect(() => {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Noticias Tecnológicas</h1>
           <p className="text-xl text-gray-600">
             Mantente al día con las últimas tendencias en tecnología e innovación
-          </p>
-
-          {/* Input de búsqueda */}
-          <div className="mt-6">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const input = e.currentTarget.search;
-                if (input.value.trim()) {
-                  window.location.href = `/blog/buscar?q=${encodeURIComponent(input.value.trim())}`;
-                }
-              }}
-              className="flex max-w-md mx-auto"
-            >
-              <input
-                type="text"
-                name="search"
-                placeholder="Buscar artículos..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-              <button
-                type="submit"
-                className="bg-teal-600 text-white px-4 py-2 rounded-r-lg hover:bg-teal-700"
-              >
-                Buscar
-              </button>
-            </form>
-          </div>
+          </p>        
         </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

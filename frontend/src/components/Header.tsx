@@ -9,8 +9,9 @@ const Header = () => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate('/buscar', { state: { query: searchQuery } });
+    const term = searchQuery.trim();
+    if (term) {
+      navigate(`/buscar?q=${encodeURIComponent(term)}`);
     }
   };
 
