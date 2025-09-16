@@ -1,8 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdCard from './AdCard';
 
 const AdBanners = () => {
+  const [isVisible, setIsVisible] = useState(false);
   const [isMainButtonClicked, setIsMainButtonClicked] = useState(false);
+
+  // Mostrar el banner después de 3 segundos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 3000); // 3 segundos
+
+    return () => clearTimeout(timer); // Limpieza si el componente se desmonta
+  }, []);
+
+  // Si aún no es visible, no renderiza nada
+  if (!isVisible) {
+    return null;
+  }
 
   const handleMainClick = () => {
     setIsMainButtonClicked(true);

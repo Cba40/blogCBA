@@ -1,13 +1,25 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX2WHHFXZJ"></script>
+    <!-- Google Analytics - Carga diferida para mejorar rendimiento -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-QX2WHHFXZJ');
+      document.addEventListener('DOMContentLoaded', () => {
+        // Crear el script de gtag.js
+        const script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-QX2WHHFXZJ';
+        script.async = true;
+        document.head.appendChild(script);
+
+        // Configurar gtag después de cargar el script
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+
+        // Inicializar gtag cuando el script esté listo
+        script.onload = () => {
+          gtag('js', new Date());
+          gtag('config', 'G-QX2WHHFXZJ');
+        };
+      });
     </script>
 
     <!-- Preconnect a recursos externos -->
