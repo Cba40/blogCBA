@@ -1,13 +1,58 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QX2WHHFXZJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QX2WHHFXZJ');
+    </script>
+
+    <!-- Preconnect a recursos externos -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="imagenes/logo.webp" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CBA4.0 Blog News</title>
+    
+    <!-- Título optimizado -->
+    <title>CBA 4.0 Noticias Tecnológicas | Últimas noticias de IA, IoT y gadgets en Córdoba</title>
+    
+    <!-- Meta description para SEO -->
+    <meta name="description" content="Noticias tecnológicas de Argentina y Córdoba: inteligencia artificial, IoT, automatización, desarrollo web y transformación digital. Actualidad tech para pymes e innovadores.">
+    
+    <!-- Base para rutas correctas en subdirectorio -->
+    <base href="/blog/" />
+
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "CBA 4.0 Blog News",
+      "url": "https://cbacuatropuntocero.com.ar/blog",
+      "description": "Blog y servicio de noticias tecnológicas para empresas y profesionales en Córdoba, Argentina.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "CBA 4.0",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://cbacuatropuntocero.com.ar/blog/imagenes/logo.webp"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://cbacuatropuntocero.com.ar/blog"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" async></script>
   </body>
 </html>

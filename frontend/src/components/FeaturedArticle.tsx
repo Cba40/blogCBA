@@ -113,12 +113,11 @@ const FeaturedArticle = ({ article }: FeaturedArticleProps) => {
         {/* Imagen */}
         <div className="md:w-1/2">
           <div className="relative aspect-video md:aspect-auto md:h-96">
-            <img 
-              src={article.image.startsWith('/blog/imagenes/') 
-                ? article.image 
-                : article.image.replace('/imagenes/', '/blog/imagenes/')
-              } 
+           <img
+              src={article.image} 
               alt={article.title} 
+              width="600"
+              height="300"
               className="w-full h-full object-cover"
             />
             <div className="absolute top-4 left-4">

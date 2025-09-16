@@ -33,7 +33,7 @@ const AdminPanel = () => {
     }).replace(',', ''),
     readTime: 5,
     category: 'ia',
-    image: '/imagenes/ImagenesArticulos/default.jpg',
+    image: 'default.jpg', // ✅ Solo el nombre del archivo
     featured: false,
   });
 
@@ -76,7 +76,6 @@ const AdminPanel = () => {
         
         const data = await res.json();
         
-        // Asegurarnos de que data es un array
         if (Array.isArray(data)) {
           setSubscribers(data);
         } else {
@@ -85,7 +84,7 @@ const AdminPanel = () => {
         }
       } catch (err) {
         console.error('Error al cargar suscriptores', err);
-        setSubscribers([]); // Evita que se rompa
+        setSubscribers([]);
       }
     };
 
@@ -101,7 +100,7 @@ const AdminPanel = () => {
     if (type === 'checkbox') {
       processedValue = (e.target as HTMLInputElement).checked;
     } else if (name === 'readTime') {
-      processedValue = parseInt(value) || 1; // Asegurar que sea un número válido
+      processedValue = parseInt(value) || 1;
     }
     
     setArticle({
@@ -125,7 +124,7 @@ const AdminPanel = () => {
       }).replace(',', ''),
       readTime: 5,
       category: 'ia',
-      image: '/imagenes/ImagenesArticulos/default.jpg',
+      image: 'default.jpg', // ✅ Solo nombre
       featured: false,
     });
     setEditingId(null);
@@ -134,9 +133,10 @@ const AdminPanel = () => {
 
   // ✅ Editar artículo con validaciones mejoradas
   const handleEdit = (art: Article) => {
+    const imageName = art.image.split('/').pop() || 'default.jpg';
     setArticle({
       ...art,
-      // ✅ Asegurar que todos los campos estén definidos
+      image: imageName,
       featured: art.featured || false,
       readTime: art.readTime || 5,
       category: art.category || 'ia',
@@ -156,13 +156,9 @@ const AdminPanel = () => {
       });
 
       if (res.ok) {
-        // ✅ CORRECCIÓN: Recargar artículos desde el servidor
         await fetchArticles();
-        
         if (editingId === id) handleNew();
         setMessage('✅ Artículo eliminado');
-        
-        // ✅ Limpiar mensaje después de 3 segundos
         setTimeout(() => setMessage(''), 3000);
       } else {
         const errorData = await res.json();
@@ -179,7 +175,6 @@ const AdminPanel = () => {
     e.preventDefault();
     setMessage('');
 
-    // Validaciones básicas
     if (!article.title.trim()) {
       setMessage('❌ El título es obligatorio');
       return;
@@ -199,10 +194,11 @@ const AdminPanel = () => {
         ? `${import.meta.env.VITE_API_URL}/api/articles/${editingId}`
         : `${import.meta.env.VITE_API_URL}/api/articles`;
 
+      // ✅ Reconstruir ruta completa
       const body = {
         ...article,
+        image: `/imagenes/ImagenesArticulos/${article.image}`, // ✅ Ruta completa
         id: editingId || Date.now().toString(),
-        // Asegurar valores por defecto
         readTime: article.readTime || 5,
         featured: article.featured || false,
       };
@@ -214,13 +210,9 @@ const AdminPanel = () => {
       });
 
       if (res.ok) {
-        // ✅ CORRECCIÓN: Recargar artículos desde el servidor
         await fetchArticles();
-        
         setMessage(editingId ? '✅ Artículo actualizado' : '✅ Artículo creado con éxito');
-        handleNew(); // Limpiar formulario
-        
-        // ✅ Limpiar mensaje después de 3 segundos
+        handleNew();
         setTimeout(() => setMessage(''), 3000);
       } else {
         const error = await res.json();
@@ -249,7 +241,7 @@ const AdminPanel = () => {
       const data = await res.json();
       alert(data.message);
       setNewsletter({ subject: '', content: '' });
-      setPreview(null); // Cerrar preview si está abierto
+      setPreview(null);
     } catch (err) {
       console.error('Error al enviar newsletter:', err);
       alert('Error de conexión');
@@ -258,7 +250,7 @@ const AdminPanel = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Encabezado con botón de logout */}
+      {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
@@ -367,15 +359,29 @@ const AdminPanel = () => {
               <option value="software">Software</option>
             </select>
 
-            <input
-              type="text"
-              name="image"
-              value={article.image}
-              onChange={handleChange}
-              placeholder="/imagenes/..."
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-            />
+            {/* ✅ Input mejorado para imagen */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Nombre del archivo de la imagen
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 truncate max-w-[180px]">
+                  /imagenes/ImagenesArticulos/
+                </span>
+                <input
+                  type="text"
+                  name="image"
+                  value={article.image}
+                  onChange={handleChange}
+                  placeholder="articulo11.webp"
+                  required
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-teal-500 text-sm"
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                Solo el nombre del archivo (ej: articulo10.jpg)
+              </p>
+            </div>
 
             <div className="flex items-center">
               <input
@@ -410,12 +416,12 @@ const AdminPanel = () => {
 
         {/* Listas: Artículos y Suscriptores */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Lista de Artículos */}
+          {/* Lista de Artículos - Ampliada */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Artículos Existentes ({articles.length})
             </h2>
-            <div className="space-y-3 max-h-60 overflow-y-auto">
+            <div className="space-y-3 max-h-80 overflow-y-auto bg-white rounded-lg border border-gray-200 p-2">
               {articles.length > 0 ? (
                 articles.map((art) => (
                   <div
@@ -462,37 +468,39 @@ const AdminPanel = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-center py-4">No hay artículos aún.</p>
+                <p className="text-gray-500 text-center py-6">No hay artículos aún.</p>
               )}
             </div>
           </div>
 
-          {/* Lista de Suscriptores */}
+          {/* Lista de Suscriptores - Más compacta */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Suscriptores al Newsletter ({subscribers.length})
+              Suscriptores ({subscribers.length})
             </h2>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="max-h-40 overflow-y-auto bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
               {subscribers.length > 0 ? (
                 subscribers.map((sub, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span className="text-sm font-medium">{sub.email}</span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(sub.createdAt).toLocaleDateString('es-ES')}
-                    </span>
+                  <div key={index} className="p-3 hover:bg-gray-50">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-900">{sub.email}</span>
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
+                        {new Date(sub.createdAt).toLocaleDateString('es-ES')}
+                      </span>
+                    </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-sm text-center py-4">No hay suscriptores aún.</p>
+                <p className="text-gray-500 text-sm text-center py-4">Ninguno</p>
               )}
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              Total: <strong>{subscribers.length}</strong> suscriptor{subscribers.length !== 1 ? 'es' : ''}
+            <p className="text-xs text-gray-600 mt-2 text-center">
+              Total: <strong>{subscribers.length}</strong>
             </p>
           </div>
 
           {/* Formulario de Newsletter */}
-          <div className="mt-10 bg-white p-6 rounded-xl shadow-lg">
+          <div className="bg-white p-6 rounded-xl shadow-lg">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Enviar Newsletter</h2>
             <form onSubmit={handleNewsletterSubmit} className="space-y-4">
               <input
@@ -506,7 +514,7 @@ const AdminPanel = () => {
               />
               <textarea
                 name="content"
-                placeholder="Contenido del newsletter (puedes usar saltos de línea)"
+                placeholder="Contenido del newsletter"
                 required
                 rows={6}
                 value={newsletter.content}

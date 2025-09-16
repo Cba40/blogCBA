@@ -123,13 +123,13 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
     <article className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:transform hover:scale-[1.02]">
       <Link to={`/article/${article.id}`}>
         <div className="relative">
-         <img 
-            src={article.image.startsWith('/blog/imagenes/') 
-              ? article.image 
-              : article.image.replace('/imagenes/', '/blog/imagenes/')} 
-            alt={article.title} 
-            className="w-full h-48 object-cover" 
-          />
+       <img 
+          src={article.image}
+          alt={article.title} 
+          width="400"
+          height="200"
+          className="w-full h-48 object-cover" 
+        />
           <div className="absolute top-3 left-3">
             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium uppercase">
               {article.category}
