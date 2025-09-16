@@ -121,7 +121,7 @@ app.post('/api/articles', async (req, res) => {
       [articleId, title, excerpt, content, author, date, readTime, category, image, featured || false]
     );
     
-    // ✅ MEJORA: Devolver el artículo creado
+   //Devolver el artículo creado
     const newArticle = {
       id: articleId,
       title,
@@ -412,6 +412,15 @@ app.get('/api/unsubscribe', async (req, res) => {
       </div>
     `);
   }
+// --- NUEVA: Ruta de saludo ---
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'API CBA Blog activa', 
+    timestamp: new Date().toISOString() 
+  });
+});
+
 });
 
 app.listen(PORT, '0.0.0.0', () => {
