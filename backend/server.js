@@ -412,7 +412,10 @@ app.get('/api/unsubscribe', async (req, res) => {
       </div>
     `);
   }
-// --- NUEVA: Ruta de saludo ---
+});
+
+// --- NUEVA: Ruta de saludo monitoreo render
+ 
 app.get('/', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
@@ -421,8 +424,7 @@ app.get('/', (req, res) => {
   });
 });
 
-});
-
+// Iniciar servidor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
