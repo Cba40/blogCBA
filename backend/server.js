@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// CORS seguro
 app.use(
   cors({
     origin: [
@@ -27,21 +28,19 @@ app.options('*', cors());
 // Parsear JSON
 app.use(express.json());
 
-// Conexión a PostgreSQL
+// Conexión a Supabase (PostgreSQL)
 let client;
 
 const connectDB = async () => {
   try {
     client = new Client({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ssl: { rejectUnauthorized: false },
     });
     await client.connect();
-    console.log('✅ Conectado a PostgreSQL');
+    console.log('✅ Conectado a Supabase (PostgreSQL)');
 
-    // Crear tablas si no existen
+    // Crear tablas si no existen (opcional – ya deberían estar creadas)
     await client.query(`
       CREATE TABLE IF NOT EXISTS articles (
         id TEXT PRIMARY KEY,
@@ -49,8 +48,8 @@ const connectDB = async () => {
         excerpt TEXT NOT NULL,
         content TEXT NOT NULL,
         author TEXT NOT NULL,
-        date TEXT NOT NULL,
-        readTime INTEGER NOT NULL,
+        date DATE NOT NULL,
+        readTime INTEGER NOT NULL DEFAULT 5,
         category TEXT NOT NULL,
         image TEXT NOT NULL,
         featured BOOLEAN DEFAULT false
@@ -67,21 +66,21 @@ const connectDB = async () => {
 
     console.log('✅ Tablas listas');
   } catch (error) {
-    console.error('❌ Error al conectar con PostgreSQL:', error);
-    setTimeout(connectDB, 5000);
+    console.error('❌ Error al conectar con Supabase:', error);
+    setTimeout(connectDB, 5000); // Reintento automático
   }
 };
 
 connectDB();
 
-// 🔹 Rutas API
+// 🔹 RUTAS API
 
 // --- CRUD DE ARTÍCULOS ---
 
 // GET: Todos los artículos
 app.get('/api/articles', async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM articles ORDER BY id DESC');
+    const result = await client.query('SELECT * FROM articles ORDER BY date DESC');
     res.json(result.rows);
   } catch (error) {
     console.error('❌ Error al obtener artículos:', error);
@@ -100,7 +99,6 @@ app.get('/api/articles/:id', async (req, res) => {
     }
     const article = result.rows[0];
     console.log('✅ Artículo encontrado:', article.title);
-    // ✅ CORRECCIÓN: No duplicar featured
     res.json(article);
   } catch (error) {
     console.error('❌ Error al obtener artículo:', error);
@@ -112,16 +110,14 @@ app.get('/api/articles/:id', async (req, res) => {
 app.post('/api/articles', async (req, res) => {
   const { id, title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
   try {
-    // Generar ID si no viene
     const articleId = id || Date.now().toString();
-    
+
     await client.query(
       `INSERT INTO articles (id, title, excerpt, content, author, date, readTime, category, image, featured) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [articleId, title, excerpt, content, author, date, readTime, category, image, featured || false]
+      [articleId, title, excerpt, content, author, date, readTime || 5, category, image, featured || false]
     );
-    
-   //Devolver el artículo creado
+
     const newArticle = {
       id: articleId,
       title,
@@ -129,12 +125,12 @@ app.post('/api/articles', async (req, res) => {
       content,
       author,
       date,
-      readTime,
+      readTime: readTime || 5,
       category,
       image,
       featured: featured || false
     };
-    
+
     console.log('✅ Artículo creado:', newArticle.title);
     res.status(201).json(newArticle);
   } catch (error) {
@@ -143,7 +139,7 @@ app.post('/api/articles', async (req, res) => {
   }
 });
 
-// PUT: Actualizar un artículo
+// PUT: Actualizar artículo
 app.put('/api/articles/:id', async (req, res) => {
   const { title, excerpt, content, author, date, readTime, category, image, featured } = req.body;
   try {
@@ -151,13 +147,12 @@ app.put('/api/articles/:id', async (req, res) => {
       `UPDATE articles 
        SET title = $1, excerpt = $2, content = $3, author = $4, date = $5, readTime = $6, category = $7, image = $8, featured = $9 
        WHERE id = $10`,
-      [title, excerpt, content, author, date, readTime, category, image, featured || false, req.params.id]
+      [title, excerpt, content, author, date, readTime || 5, category, image, featured || false, req.params.id]
     );
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'Artículo no encontrado' });
     }
-    
-    // ✅ MEJORA: Devolver el artículo actualizado
+
     const updatedArticle = {
       id: req.params.id,
       title,
@@ -165,12 +160,12 @@ app.put('/api/articles/:id', async (req, res) => {
       content,
       author,
       date,
-      readTime,
+      readTime: readTime || 5,
       category,
       image,
       featured: featured || false
     };
-    
+
     console.log('✅ Artículo actualizado:', updatedArticle.title);
     res.json(updatedArticle);
   } catch (error) {
@@ -179,7 +174,7 @@ app.put('/api/articles/:id', async (req, res) => {
   }
 });
 
-// DELETE: Eliminar un artículo
+// DELETE: Eliminar artículo
 app.delete('/api/articles/:id', async (req, res) => {
   try {
     const result = await client.query('DELETE FROM articles WHERE id = $1', [req.params.id]);
@@ -204,7 +199,7 @@ app.post('/api/contact', async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
@@ -233,6 +228,7 @@ app.post('/api/subscribers', async (req, res) => {
   if (!email || !email.includes('@')) {
     return res.status(400).json({ message: 'Email inválido' });
   }
+
   try {
     const id = Date.now().toString();
     const createdAt = new Date().toISOString();
@@ -250,6 +246,7 @@ app.post('/api/subscribers', async (req, res) => {
   }
 });
 
+// Listar suscriptores
 app.get('/api/subscribers', async (req, res) => {
   try {
     const result = await client.query('SELECT email, createdat FROM subscribers ORDER BY createdat DESC');
@@ -266,15 +263,14 @@ app.post('/api/newsletter', async (req, res) => {
   if (!subject || !content) {
     return res.status(400).json({ message: 'Faltan asunto o contenido' });
   }
+
   try {
-    // Obtener suscriptores con su ID (para el token de baja)
     const subscribers = await client.query('SELECT id, email FROM subscribers');
     const subscriberList = subscribers.rows;
     if (subscriberList.length === 0) {
       return res.status(200).json({ message: 'No hay suscriptores' });
     }
 
-    // Obtener artículo destacado
     const featuredResult = await client.query(`
       SELECT * FROM articles 
       WHERE featured = true 
@@ -283,19 +279,17 @@ app.post('/api/newsletter', async (req, res) => {
     `);
     const featuredArticle = featuredResult.rows[0];
 
-    // Configurar transporte de correo
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS, 
+        pass: process.env.GMAIL_PASS,
       },
     });
 
-    const domain = 'https://cbacuatropuntocero.com.ar'; 
-    const apiDomain = 'https://blogcba-api.onrender.com'; 
+    const domain = 'https://cbacuatropuntocero.com.ar/blog';
+    const unsubscribeBase = 'https://cbacuatropuntocero.com.ar/blog/api/unsubscribe';
 
-    // Enviar un correo por cada suscriptor (con token personalizado)
     for (const subscriber of subscriberList) {
       const htmlTemplate = `
         <!DOCTYPE html>
@@ -325,23 +319,14 @@ app.post('/api/newsletter', async (req, res) => {
             <div class="content">${content.replace(/\n/g, '<br>')}${featuredArticle ? `
               <div class="featured">
                 <h2>${featuredArticle.title}</h2>
-                <img src="${domain}${featuredArticle.image}" alt="${featuredArticle.title}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;" />
+                <img src="${domain}${featuredArticle.image}" alt="${featuredArticle.title}" />
                 <p><strong>${featuredArticle.excerpt}</strong></p>
-                <a href="${domain}/blog/article/${featuredArticle.id}" class="btn">Leer más</a>
+                <a href="${domain}/article/${featuredArticle.id}" class="btn">Leer más</a>
               </div>` : ''}</div>
             <div class="footer">
               <p>
-                <a href="${domain}/api/unsubscribe?token=${subscriber.id}" style="color: #009688; text-decoration: none;">
-                  Darse de baja
-                </a>
-                | 
-                <a href="${domain}" style="color: #009688; text-decoration: none;">
-                  Visitar sitio web
-                </a>
-                | 
-                <a href="${domain}/blog" style="color: #009688; text-decoration: none;">
-                  Visitar el Blog
-                </a>
+                <a href="${unsubscribeBase}?token=${subscriber.id}">Darse de baja</a> |
+                <a href="${domain}">Visitar sitio web</a>
               </p>
               <p>&copy; ${new Date().getFullYear()} CBA Blog. Todos los derechos reservados.</p>
             </div>
@@ -350,7 +335,6 @@ app.post('/api/newsletter', async (req, res) => {
         </html>
       `;
 
-      // Enviar correo individual
       await transporter.sendMail({
         from: `"CBA Blog" <${process.env.GMAIL_USER}>`,
         to: subscriber.email,
@@ -414,8 +398,7 @@ app.get('/api/unsubscribe', async (req, res) => {
   }
 });
 
-// --- NUEVA: Ruta de saludo monitoreo render
- 
+// --- RUTA RAÍZ (monitoreo) ---
 app.get('/', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
