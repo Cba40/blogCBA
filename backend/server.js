@@ -73,7 +73,32 @@ const connectDB = async () => {
 
 connectDB();
 
-// 🔹 RUTAS API
+// --- RUTA TEMPORAL PARA EXPORTAR DATOS (segura) ---
+app.get('/api/export-data', (req, res) => {
+  const auth = req.headers['authorization'];
+  
+  if (auth !== 'Bearer export123') {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+
+  Promise.all([
+    client.query('SELECT * FROM articles'),
+    client.query('SELECT id, email, createdat FROM subscribers')
+  ])
+    .then(([articlesRes, subscribersRes]) => {
+      res.json({
+        articles: articlesRes.rows,
+        subscribers: subscribersRes.rows
+      });
+    })
+    .catch(err => {
+      console.error('Error al exportar:', err);
+      res.status(500).json({ message: 'Error interno' });
+    });
+});
+
+// 🔹 Rutas API
+
 
 // --- CRUD DE ARTÍCULOS ---
 
