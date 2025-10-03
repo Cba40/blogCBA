@@ -73,11 +73,12 @@ const connectDB = async () => {
 
 connectDB();
 
-app.get('/backup-data', async (req, res) => {
+
+app.get('/api/backup-secret', async (req, res) => {
   const token = req.query.token;
   
-  if (token !== 'cbablog-backup-2025') {
-    return res.status(403).send('Acceso denegado');
+  if (token !== 'recuperar-datos-cba2025') {
+    return res.status(403).json({ message: 'Acceso denegado' });
   }
 
   try {
@@ -86,14 +87,16 @@ app.get('/backup-data', async (req, res) => {
       client.query('SELECT id, email, createdat FROM subscribers')
     ]);
 
+    // ✅ Respuesta correcta, sin error de sintaxis
     res.json({
       timestamp: new Date().toISOString(),
       articles: articlesRes.rows,
       subscribers: subscribersRes.rows
     });
+
   } catch (err) {
     console.error('Error al exportar:', err);
-    res.status(500).json({ error: 'No se pudo generar el backup' });
+    res.status(500).json({ message: 'Error interno' });
   }
 });
 
