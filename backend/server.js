@@ -73,35 +73,33 @@ const connectDB = async () => {
 
 connectDB();
 
-// 🔐 RUTA TEMPORAL DE EXPORTACIÓN SEGURA
-app.get('/api/export-data', (req, res) => {
-  const auth = req.headers['authorization'];
-  
-  // Token simple para evitar acceso público
-  if (auth !== 'Bearer export123') {
+// 🔐 RUTA TEMPORAL PARA EXPORTAR DATOS (con token en URL)
+app.get('/api/export-data/:token', async (req, res) => {
+  const { token } = req.params;
+
+  // Token secreto (cámbialo por uno personalizado)
+  if (token !== 'tu-token-seguro-12345') {
     return res.status(403).json({ message: 'Acceso denegado' });
   }
 
-  console.log('✅ Solicitud de exportación recibida');
+  try {
+    const [articlesRes, subscribersRes] = await Promise.all([
+      client.query('SELECT * FROM articles'),
+      client.query('SELECT id, email, createdat FROM subscribers')
+    ]);
 
-  Promise.all([
-    client.query('SELECT * FROM articles'),
-    client.query('SELECT id, email, createdat FROM subscribers')
-  ])
-    .then(([articlesRes, subscribersRes]) => {
-      res.json({
-        success: true,
-        timestamp: new Date().toISOString(),
-        data: {
-          articles: articlesRes.rows,
-          subscribers: subscribersRes.rows
-        }
-      });
-    })
-    .catch(err => {
-      console.error('❌ Error al exportar:', err);
-      res.status(500).json({ message: 'Error interno al exportar' });
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      data: {
+        articles: articlesRes.rows,
+        subscribers: subscribersRes.rows
+      }
     });
+  } catch (err) {
+    console.error('Error al exportar:', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
 });
 
 // 🔹 Rutas API
