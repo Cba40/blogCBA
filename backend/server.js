@@ -73,13 +73,11 @@ const connectDB = async () => {
 
 connectDB();
 
-// 🔐 RUTA TEMPORAL PARA EXPORTAR DATOS (con token en URL)
-app.get('/api/export-data/:token', async (req, res) => {
-  const { token } = req.params;
-
-  // Token secreto (cámbialo por uno personalizado)
-  if (token !== 'tu-token-seguro-12345') {
-    return res.status(403).json({ message: 'Acceso denegado' });
+app.get('/backup-data', async (req, res) => {
+  const token = req.query.token;
+  
+  if (token !== 'cbablog-backup-2025') {
+    return res.status(403).send('Acceso denegado');
   }
 
   try {
@@ -89,16 +87,13 @@ app.get('/api/export-data/:token', async (req, res) => {
     ]);
 
     res.json({
-      success: true,
       timestamp: new Date().toISOString(),
-      data: {
-        articles: articlesRes.rows,
-        subscribers: subscribersRes.rows
-      }
+      articles: articlesRes.rows,
+      subscribers: subscribersRes.rows
     });
   } catch (err) {
     console.error('Error al exportar:', err);
-    res.status(500).json({ message: 'Error interno' });
+    res.status(500).json({ error: 'No se pudo generar el backup' });
   }
 });
 
