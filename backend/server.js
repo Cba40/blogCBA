@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS seguro
+// CORS seguro (sin espacios)
 app.use(
   cors({
     origin: [
@@ -40,7 +40,18 @@ const connectDB = async () => {
     await client.connect();
     console.log('✅ Conectado a Supabase (PostgreSQL)');
 
-    // Crear tablas si no existen (opcional – ya deberían estar creadas)
+    // Crear tablas si no existen
+    await createTablesIfNotExists();
+  } catch (error) {
+    console.error('❌ Error al conectar con Supabase:', error);
+    setTimeout(connectDB, 5000); // Reintento automático
+  }
+};
+
+// Función separada para crear tablas
+async function createTablesIfNotExists() {
+  try {
+    // Tabla articles
     await client.query(`
       CREATE TABLE IF NOT EXISTS articles (
         id TEXT PRIMARY KEY,
@@ -56,6 +67,7 @@ const connectDB = async () => {
       );
     `);
 
+    // Tabla subscribers
     await client.query(`
       CREATE TABLE IF NOT EXISTS subscribers (
         id TEXT PRIMARY KEY,
@@ -64,38 +76,16 @@ const connectDB = async () => {
       );
     `);
 
-    console.log('✅ Tablas listas');
+    console.log('✅ Tablas listas o ya existentes');
   } catch (error) {
-    console.error('❌ Error al conectar con Supabase:', error);
-    setTimeout(connectDB, 5000); // Reintento automático
+    console.error('❌ Error al crear tablas:', error.message);
   }
-};
+}
 
 connectDB();
 
 
-app.get('/api/backup-data', async (req, res) => {
-  const token = req.query.token;
-  if (token !== 'cba2025recuperacion') {
-    return res.status(403).json({ message: 'Acceso denegado' });
-  }
 
-  try {
-    const [articlesRes, subscribersRes] = await Promise.all([
-      client.query('SELECT * FROM articles'),
-      client.query('SELECT id, email, createdat FROM subscribers')
-    ]);
-
-    res.json({
-      timestamp: new Date().toISOString(),
-      articles: articlesRes.rows,
-      subscribers: subscribersRes.rows
-    });
-  } catch (err) {
-    console.error('Error:', err);
-    res.status(500).json({ message: 'Error interno' });
-  }
-});
 
 // 🔹 Rutas API
 
