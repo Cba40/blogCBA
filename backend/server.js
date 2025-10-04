@@ -84,7 +84,25 @@ async function createTablesIfNotExists() {
 
 connectDB();
 
-
+// 🔍 RUTA DE PRUEBA: Verifica conexión con Supabase
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const result = await client.query("SELECT NOW()");
+    res.json({
+      success: true,
+      message: '✅ Conexión a Supabase exitosa',
+      timestamp: result.rows[0].now,
+      env: process.env.NODE_ENV || 'development'
+    });
+  } catch (err) {
+    console.error('❌ Error en prueba de BD:', err);
+    res.status(500).json({
+      success: false,
+      message: '❌ No se pudo conectar a Supabase',
+      error: err.message
+    });
+  }
+});
 
 
 // 🔹 Rutas API
