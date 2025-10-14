@@ -1,4 +1,5 @@
 // src/components/ContactPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
@@ -39,7 +40,8 @@ const ContactPage = () => {
     `;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+      // 👇 Usa '/api/contact' si tu backend está en el mismo dominio
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

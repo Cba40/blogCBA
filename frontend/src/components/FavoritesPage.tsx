@@ -1,9 +1,11 @@
 // src/pages/FavoritesPage.tsx
+
 import React, { useEffect, useState } from 'react';
-import { Link, useParams  } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Heart } from 'lucide-react';
 import ArticleCard from '../components/ArticleCard';
 import { Article } from '../types/Article';
+import { supabase } from '../lib/supabase';
 
 const FavoritesPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,15 +13,28 @@ const FavoritesPage = () => {
   const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Cargar todos los artículos
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-        const data: Article[] = await res.json();
-        setAllArticles(data);
+        // 👇 Usa 'date' en lugar de 'created_at'
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*')
+          .order('date', { ascending: false }); // 👈 Orden por fecha de publicación
+
+        if (error) throw error;
+
+        // Corregir rutas de imágenes
+        const fixedData = data.map(article => ({
+          ...article,
+          image: article.image.startsWith('/imagenes/')
+            ? `/blog${article.image}`
+            : article.image
+        }));
+
+        setAllArticles(fixedData);
       } catch (err) {
-        console.error('Error al cargar artículos:', err);
+        console.error('Error al cargar artículos desde Supabase:', err);
       } finally {
         setLoading(false);
       }

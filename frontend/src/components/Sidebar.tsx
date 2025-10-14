@@ -1,6 +1,9 @@
+// Sidebar.tsx
+
 import React, { useState } from 'react';
 import { Mail, TrendingUp } from 'lucide-react';
 import AdCard from './AdCard';
+import { supabase } from '../lib/supabase'; // 👈 Importa Supabase
 
 const Sidebar = () => {
   const [isTopButtonClicked, setIsTopButtonClicked] = useState(false);
@@ -93,17 +96,26 @@ const Sidebar = () => {
           e.preventDefault();
           const email = new FormData(e.currentTarget).get('email') as string;
 
+          if (!email || !email.includes('@')) {
+            alert('Email inválido');
+            return;
+          }
+
           try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/subscribers`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email }),
-            });
-            const data = await res.json();
-            alert(data.message);
+            const id = Date.now().toString();
+            const createdAt = new Date().toISOString();
+
+            const { error } = await supabase
+              .from('subscribers')
+              .insert([{ id, email, createdat: createdAt }]);
+
+            if (error) throw error;
+
+            alert('✅ Suscrito exitosamente');
             e.currentTarget.reset();
           } catch (err) {
-            alert('Error de conexión. Intenta nuevamente.');
+            console.error('Error al suscribirse:', err);
+            alert('❌ Error al suscribirse. Intenta nuevamente.');
           }
         }}
         className="space-y-3"

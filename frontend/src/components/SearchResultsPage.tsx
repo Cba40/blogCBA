@@ -1,10 +1,12 @@
 // src/components/SearchResultsPage.tsx
+
 import React, { useState, useEffect } from 'react';
-import { useParams , useSearchParams, useNavigate } from 'react-router-dom'; 
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
 import { Article } from '../types/Article';
+import { supabase } from '../lib/supabase'; // 👈 Asegúrate de importar Supabase
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -14,45 +16,52 @@ const SearchResultsPage = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
-  // Cargar artículos desde la API
   useEffect(() => {
-  const fetchArticles = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-      const data: Article[] = await res.json();
+    const fetchArticles = async () => {
+      if (!query.trim()) {
+        setArticles([]);
+        setLoading(false);
+        return;
+      }
 
-      // Filtrar por búsqueda
-      const filtered = data.filter(
-        (a) =>
-          a.title.toLowerCase().includes(query.toLowerCase()) ||
-          a.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          a.content.toLowerCase().includes(query.toLowerCase()) ||
-          a.author.toLowerCase().includes(query.toLowerCase())
-      );
+      try {
+        setLoading(true);
 
-      setArticles(filtered);
-    } catch (error) {
-      console.error('Error al cargar artículos', error);
-      setArticles([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+        // 👇 Consulta a Supabase con filtro de búsqueda
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*')
+          .or(
+            `title.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%,author.ilike.%${query}%`
+          )
+          .order('date', { ascending: false }); // 👈 Cambiado a 'date'
 
-  if (query.trim()) {
-    setLoading(true);
+        if (error) throw error;
+
+        // Corregir rutas de imágenes
+        const fixedData = data.map(article => ({
+          ...article,
+          image: article.image.startsWith('/imagenes/')
+            ? `/blog${article.image}`
+            : article.image
+        }));
+
+        setArticles(fixedData);
+      } catch (err) {
+        console.error('Error al buscar artículos en Supabase:', err);
+        setArticles([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchArticles();
-  } else {
-    setArticles([]);
-    setLoading(false);
-  }
-}, [query]);
+  }, [query]); // 👈 Se ejecuta cada vez que cambia la búsqueda
 
   const articlesPerPage = 6;
   const totalPages = Math.ceil(articles.length / articlesPerPage);
@@ -63,17 +72,17 @@ const SearchResultsPage = () => {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-       {/* Botón Volver al Inicio */}
+      {/* Botón Volver al Inicio */}
       <div className="mb-6">
         <button
-          onClick={() => window.history.back()} 
+          onClick={() => window.history.back()}
           className="text-teal-600 hover:text-teal-800 font-medium flex items-center gap-2"
         >
           ← Volver al inicio
         </button>
       </div>
-       
-       {/* Título */}
+
+      {/* Título */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
           Resultados para: <span className="text-teal-600">"{query}"</span>

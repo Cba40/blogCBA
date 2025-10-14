@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, User, Calendar, Share2, BookmarkPlus, X, Facebook, Linkedin, Twitter, Send } from 'lucide-react';
 import { Article } from '../types/Article';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 interface FeaturedArticleProps {
   article: Article;
@@ -155,7 +156,7 @@ const FeaturedArticle = ({ article }: FeaturedArticleProps) => {
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
-                <span>{article.readTime} min lectura</span>
+                <span>{article.readtime} min lectura</span>
               </div>
             </div>
 

@@ -1,3 +1,5 @@
+// src/App.tsx
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -11,6 +13,8 @@ const AdminPanel = lazy(() => import('./components/AdminPanel'));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage'));
 const AdminLogin = lazy(() => import('./components/AdminLogin'));
 const Layout = lazy(() => import('./components/Layout'));
+const NewsletterPanel = lazy(() => import('./components/NewsletterPanel'));
+const BackupPanel = lazy(() => import('./components/BackupPanel'));
 
 // --- Componente de carga ---
 const LoadingFallback = () => (
@@ -94,6 +98,28 @@ function App() {
               <Suspense fallback={<LoadingFallback />}>
                 <Layout>
                   <FavoritesPage />
+                </Layout>
+              </Suspense>
+            }
+          />
+
+          {/* 👇 NUEVAS RUTAS */}
+          <Route
+            path="/newsletter"
+            element={
+              <Suspense fallback={<LoadingFallback />}>
+                <Layout>
+                  <NewsletterPanel />
+                </Layout>
+              </Suspense>
+            }
+          />
+          <Route
+            path="/backup"
+            element={
+              <Suspense fallback={<LoadingFallback />}>
+                <Layout>
+                  <BackupPanel />
                 </Layout>
               </Suspense>
             }

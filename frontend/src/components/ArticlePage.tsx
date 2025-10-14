@@ -1,10 +1,12 @@
 // src/components/ArticlePage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async'; // ✅ Asegurate de tenerlo instalado
+import { Helmet } from 'react-helmet-async'; 
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
-import { Article } from '../types/Article';
+import { Article } from '../types/Article'; 
+import { supabase } from '../lib/supabase';
 
 const ArticlePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,28 +19,36 @@ const ArticlePage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Cargar el artículo desde la API
   useEffect(() => {
     const fetchArticle = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
-        if (!res.ok) {
-          throw new Error('No encontrado');
+        const { data, error } = await supabase
+          .from('articles') // 👈 Nombre de tu tabla
+          .select('*')
+          .eq('id', id) // 👈 Filtra por ID
+          .single(); // 👈 Devuelve un solo registro
+
+        if (error) {
+          console.error('Error al cargar artículo:', error);
+          setArticle(null);
+        } else {
+          setArticle(data);
         }
-        const data = await res.json();
-        setArticle(data);
-      } catch (error) {
-        console.error('Artículo no encontrado:', error);
+      } catch (err) {
+        console.error('Error general:', err);
         setArticle(null);
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchArticle();
-    }
-  }, [id]);
+    fetchArticle();
+  }, [id]); // 👈 Se ejecuta cada vez que cambia el ID
 
   if (loading) {
     return (
@@ -80,7 +90,7 @@ const ArticlePage = () => {
             "@type": "NewsArticle",
             "headline": article.title,
             "description": article.excerpt,
-            "image": `https://cbacuatropuntocero.com.ar/blog${article.image}`,
+            "image": `https://cbacuatropuntocero.com.ar/blog${article.image}`, // 👈 Corrige la ruta si es necesario
             "datePublished": new Date().toISOString(),
             "dateModified": new Date().toISOString(),
             "author": {
@@ -128,12 +138,12 @@ const ArticlePage = () => {
                 <span className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-medium">
                   {article.category.toUpperCase()}
                 </span>
-                <span>{article.readTime} min de lectura</span>
+                <span>{article.readtime} min de lectura</span>
               </div>
 
               {/* Imagen principal */}
               <img
-                src={`/blog${article.image}`}
+                src={`/blog${article.image}`} // 👈 Asegúrate que esta ruta sea correcta
                 alt={article.title}
                 width="600"
                 height="300"

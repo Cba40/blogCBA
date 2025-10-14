@@ -1,12 +1,14 @@
+// src/types/Article.ts
+
 export interface Article {
   id: string;
   title: string;
   excerpt: string;
   content: string;
   author: string;
-  date: string;
-  readTime: number;
-  category: 'ia' | 'gadgets' | 'iot' | 'software'; // ✅ Tipado más seguro
+  date: string; 
+  readtime: number; 
+  category: string;
   image: string;
-  featured?: boolean;
+  featured: boolean | null; 
 }

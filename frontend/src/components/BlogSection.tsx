@@ -1,10 +1,13 @@
-import React, {useState, useEffect } from 'react';
-import {useParams, useSearchParams, useNavigate } from 'react-router-dom';
+// BlogSection.tsx
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import FeaturedArticle from './FeaturedArticle';
 import ArticleCard from './ArticleCard';
 import Sidebar from './Sidebar';
 import AdBanners from './AdBanners';
 import { Article } from '../types/Article';
+import { supabase } from '../lib/supabase';
 
 const BlogSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('todos');
@@ -15,10 +18,9 @@ const BlogSection = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [featured, setFeatured] = useState<Article | null>(null);
   const navigate = useNavigate();
-  
 
   // Scroll al cambiar de página
-   useEffect(() => {
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
@@ -28,34 +30,38 @@ const BlogSection = () => {
     setSearchQuery(q);
   }, [searchParams]);
 
-  // Cargar artículos desde la API
-useEffect(() => {
-  const fetchArticles = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
-      const data: Article[] = await res.json();
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        // 👇 Usa 'date' si no tienes 'created_at'
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*')
+          .order('date', { ascending: false }); // 👈 Cambiado a 'date'
 
-      
-      const fixedData = data.map(article => ({
-        ...article,
-        image: article.image.startsWith('/imagenes/')
-          ? `/blog${article.image}`
-          : article.image
-      }));
+        if (error) throw error;
 
-      // Separar artículo destacado
-      const featuredArticle = fixedData.find((a) => a.featured);
-      const regularArticles = fixedData.filter((a) => !a.featured);
+        // Corregir rutas de imágenes
+        const fixedData = data.map(article => ({
+          ...article,
+          image: article.image.startsWith('/imagenes/')
+            ? `/blog${article.image}`
+            : article.image
+        }));
 
-      setFeatured(featuredArticle || null);
-      setArticles(fixedData);
-    } catch (error) {
-      console.error('Error al cargar artículos desde la API', error);
-    }
-  };
+        // Separar artículo destacado
+        const featuredArticle = fixedData.find((a) => a.featured);
+        const regularArticles = fixedData.filter((a) => !a.featured);
 
-  fetchArticles();
-}, []);
+        setFeatured(featuredArticle || null);
+        setArticles(fixedData);
+      } catch (error) {
+        console.error('Error al cargar artículos desde Supabase', error);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const articlesPerPage = 6;
 
@@ -79,12 +85,12 @@ useEffect(() => {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Encabezado */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Noticias Tecnológicas</h1>
-          <p className="text-xl text-gray-600">
-            Mantente al día con las últimas tendencias en tecnología e innovación
-          </p>        
-        </div>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Noticias Tecnológicas</h1>
+        <p className="text-xl text-gray-600">
+          Mantente al día con las últimas tendencias en tecnología e innovación
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">

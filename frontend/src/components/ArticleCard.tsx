@@ -1,5 +1,8 @@
+// ArticleCard.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import {
   Clock,
   User,
@@ -123,13 +126,17 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
     <article className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover:transform hover:scale-[1.02]">
       <Link to={`/article/${article.id}`}>
         <div className="relative">
-       <img 
-          src={article.image}
-          alt={article.title} 
-          width="400"
-          height="200"
-          className="w-full h-48 object-cover" 
-        />
+          <img 
+            src={
+              article.image.startsWith('/imagenes/')
+                ? `/blog${article.image}`
+                : article.image
+            }
+            alt={article.title} 
+            width="400"
+            height="200"
+            className="w-full h-48 object-cover" 
+          />
           <div className="absolute top-3 left-3">
             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium uppercase">
               {article.category}
@@ -146,7 +153,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
           </div>
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3" />
-            <span>{article.readTime} min</span>
+            <span>{article.readtime} min</span>
           </div>
         </div>
 
@@ -201,7 +208,6 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
                 style={{
                   maxHeight: '200px',
                   overflowY: 'auto',
-                  // Opcional: forzar visibilidad si hay scroll
                   transform: menuPosition === 'top' ? 'translateY(0)' : 'translateY(0)',
                 }}
                 onClick={(e) => e.stopPropagation()}
